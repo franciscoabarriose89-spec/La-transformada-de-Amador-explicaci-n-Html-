@@ -1,0 +1,2907 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>La Transformada de Amador: Nodos Resonantes y Unificación (20 Min) — Núcleo RT-Core</title>
+  <style>
+    /* ==========================================================================
+       SISTEMA DE DISEÑO — OBSERVATORIO DE FÍSICA MATEMÁTICA (NÚCLEO RT-CORE)
+       Estética: Azul Zafiro Profundo, Cian Cuántico, Dorado Simpléctico y Violeta
+       ========================================================================== */
+    :root {
+      --bg-void: #070d1a;
+      --bg-deep: #091124;
+      --panel-bg: rgba(11, 20, 42, 0.88);
+      --panel-header-bg: rgba(7, 13, 26, 0.78);
+      --border-sapphire: #1e3a8a;
+      --border-subtle: rgba(56, 189, 248, 0.24);
+      --cyan: #38bdf8;
+      --gold: #f59e0b;
+      --gold-bright: #fbbf24;
+      --violet: #a855f7;
+      --violet-soft: #c084fc;
+      --emerald: #10b981;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-card: 0 14px 38px rgba(0, 0, 0, 0.58), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--bg-void);
+      background-image:
+        radial-gradient(circle at 12% 14%, rgba(30, 58, 138, 0.28) 0%, transparent 45%),
+        radial-gradient(circle at 86% 18%, rgba(168, 85, 247, 0.14) 0%, transparent 42%),
+        radial-gradient(circle at 50% 92%, rgba(245, 158, 11, 0.1) 0%, transparent 48%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.55;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .math {
+      font-family: "Cambria Math", "STIX Two Math", "Times New Roman", Georgia, serif;
+      letter-spacing: 0.01em;
+    }
+    .math-var {
+      font-family: "Cambria Math", "Times New Roman", Georgia, serif;
+      font-style: italic;
+    }
+    .mono {
+      font-family: var(--font-mono);
+    }
+
+    .app-shell {
+      max-width: 1580px;
+      margin: 0 auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    @media (min-width: 768px) {
+      .app-shell {
+        padding: 18px 22px;
+        gap: 16px;
+      }
+    }
+
+    /* ==========================================================================
+       CABECERA CIENTÍFICA
+       ========================================================================== */
+    .obs-header {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-sapphire);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-width: 0;
+    }
+
+    .brand-emblem {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(168, 85, 247, 0.18));
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.2);
+    }
+
+    .brand-titles h1 {
+      font-size: clamp(1.05rem, 2.1vw, 1.42rem);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      background: linear-gradient(90deg, #f8fafc 0%, #38bdf8 52%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.25;
+    }
+
+    .brand-titles .subtitle {
+      font-size: 0.81rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .brand-titles .subtitle strong {
+      color: var(--gold-bright);
+      font-weight: 600;
+    }
+
+    .header-status-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .shield-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      background: rgba(16, 185, 129, 0.12);
+      color: #6ee7b7;
+      white-space: nowrap;
+    }
+
+    .shield-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 9px var(--emerald);
+      animation: shieldPulse 2s infinite ease-in-out;
+    }
+
+    @keyframes shieldPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.82); }
+    }
+
+    .master-clock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--gold-bright);
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       GRID PRINCIPAL (OBSERVATORIO 4D + CONSOLA DE LOCUCIÓN 20 MIN)
+       ========================================================================== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (min-width: 1120px) {
+      .main-grid {
+        grid-template-columns: minmax(0, 1.32fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-sapphire);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(30, 58, 138, 0.75);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--panel-header-bg);
+    }
+
+    .panel-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ==========================================================================
+       PANEL IZQUIERDO: MOTOR GRÁFICO HIPERVOLUMÉTRICO 4D
+       ========================================================================== */
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding: 11px 14px;
+      background: rgba(7, 13, 26, 0.62);
+      border-bottom: 1px solid rgba(30, 58, 138, 0.68);
+    }
+
+    @media (min-width: 640px) {
+      .mode-tabs {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .mode-btn {
+      appearance: none;
+      background: rgba(11, 20, 42, 0.92);
+      border: 1px solid rgba(30, 58, 138, 0.85);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      min-height: 48px;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .mode-btn:hover {
+      border-color: var(--cyan);
+      color: var(--text-main);
+    }
+
+    .mode-btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.16));
+      border-color: var(--cyan);
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
+    }
+
+    .mode-btn .m-tag {
+      font-size: 0.66rem;
+      font-family: var(--font-mono);
+      color: var(--gold-bright);
+      text-transform: uppercase;
+    }
+
+    .canvas-stage {
+      position: relative;
+      width: 100%;
+      height: 390px;
+      background: radial-gradient(circle at center, #0b1633 0%, #050914 100%);
+      touch-action: none;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .canvas-stage {
+        height: 495px;
+      }
+    }
+
+    #hyperCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: grab;
+    }
+
+    #hyperCanvas:active {
+      cursor: grabbing;
+    }
+
+    .hud-top {
+      position: absolute;
+      top: 11px;
+      left: 11px;
+      right: 11px;
+      pointer-events: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .hud-card {
+      background: rgba(7, 13, 26, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      max-width: 100%;
+    }
+
+    .hud-mode-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold-bright);
+    }
+
+    .hud-formula {
+      font-size: 0.9rem;
+      color: #f8fafc;
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    .hud-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: rgba(7, 13, 26, 0.84);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .metric-cell {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-k {
+      color: var(--text-dim);
+      font-size: 0.62rem;
+      text-transform: uppercase;
+    }
+
+    .metric-v {
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .metric-v.gold { color: var(--gold-bright); }
+    .metric-v.violet { color: var(--violet-soft); }
+
+    .hud-bottom {
+      position: absolute;
+      bottom: 11px;
+      left: 11px;
+      right: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .legend-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(7, 13, 26, 0.82);
+      border: 1px solid rgba(30, 58, 138, 0.8);
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 0.69rem;
+      color: var(--text-muted);
+    }
+
+    .leg-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    .cam-controls {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cam-btn {
+      appearance: none;
+      min-width: 38px;
+      min-height: 38px;
+      padding: 0 10px;
+      border-radius: var(--radius-sm);
+      background: rgba(11, 20, 42, 0.9);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .cam-btn:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: var(--cyan);
+    }
+
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 11px;
+      padding: 13px 15px;
+      background: rgba(7, 13, 26, 0.78);
+      border-top: 1px solid rgba(30, 58, 138, 0.72);
+    }
+
+    @media (min-width: 680px) {
+      .sliders-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .slider-card {
+      background: rgba(11, 20, 42, 0.75);
+      border: 1px solid rgba(30, 58, 138, 0.75);
+      border-radius: var(--radius-md);
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .slider-val {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .slider-val.violet { color: var(--violet-soft); }
+    .slider-val.cyan { color: var(--cyan); }
+    .slider-val.gold { color: var(--gold-bright); }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #172554;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--cyan);
+      border: 2px solid #070d1a;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.65);
+      cursor: pointer;
+    }
+
+    input[type="range"].violet-range::-webkit-slider-thumb {
+      background: var(--violet);
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.65);
+    }
+
+    input[type="range"].gold-range::-webkit-slider-thumb {
+      background: var(--gold);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.65);
+    }
+
+    .slider-note {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+    }
+
+    /* ==========================================================================
+       PANEL DERECHO: CONSOLA DE LOCUCIÓN CONTINUA DE 20 MINUTOS + TELEPROMPTER
+       ========================================================================== */
+    .audio-console {
+      padding: 13px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+      border-bottom: 1px solid rgba(30, 58, 138, 0.72);
+    }
+
+    .timeline-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .timeline-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.77rem;
+    }
+
+    .active-chap-text {
+      color: var(--gold-bright);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chunk-counter {
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      color: var(--cyan);
+      white-space: nowrap;
+    }
+
+    .progress-bar-track {
+      position: relative;
+      width: 100%;
+      height: 12px;
+      background: #070d1a;
+      border: 1px solid #1e3a8a;
+      border-radius: 999px;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--cyan), var(--violet), var(--gold));
+      border-radius: 999px;
+      transition: width 0.12s linear;
+    }
+
+    .transport-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-action {
+      appearance: none;
+      min-height: 44px;
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-sapphire);
+      background: rgba(16, 29, 64, 0.92);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: all 0.18s ease;
+    }
+
+    .btn-action:hover {
+      border-color: var(--cyan);
+      background: rgba(56, 189, 248, 0.16);
+    }
+
+    .btn-action.primary {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-color: #38bdf8;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(2, 132, 199, 0.38);
+    }
+
+    .btn-action.primary:hover {
+      background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+    }
+
+    .btn-action.paused-state {
+      background: linear-gradient(135deg, #d97706, #b45309);
+      border-color: #fbbf24;
+      color: #ffffff;
+    }
+
+    .btn-mini {
+      appearance: none;
+      min-height: 30px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-sapphire);
+      background: rgba(11, 20, 42, 0.9);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-mini.on {
+      border-color: var(--gold);
+      color: var(--gold-bright);
+      background: rgba(245, 158, 11, 0.14);
+    }
+
+    .voice-rate-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    @media (min-width: 560px) {
+      .voice-rate-grid {
+        grid-template-columns: 1.25fr 1fr;
+      }
+    }
+
+    .control-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .control-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    select.voice-select {
+      width: 100%;
+      min-height: 40px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      background: #070d1a;
+      border: 1px solid var(--border-sapphire);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      font-size: 0.77rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select.voice-select:focus {
+      border-color: var(--cyan);
+    }
+
+    .rate-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
+
+    .rate-btn {
+      appearance: none;
+      min-height: 40px;
+      border-radius: var(--radius-sm);
+      background: #070d1a;
+      border: 1px solid var(--border-sapphire);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .rate-btn.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .engine-telemetry-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 7px 11px;
+      border-radius: var(--radius-sm);
+      background: rgba(7, 13, 26, 0.8);
+      border: 1px solid rgba(30, 58, 138, 0.75);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .telemetry-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.67rem;
+    }
+
+    .t-tag {
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .t-tag.phon {
+      background: rgba(245, 158, 11, 0.14);
+      color: var(--gold-bright);
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .t-tag.wake {
+      background: rgba(168, 85, 247, 0.14);
+      color: var(--violet-soft);
+      border-color: rgba(168, 85, 247, 0.3);
+    }
+
+    .chapters-bar {
+      padding: 10px 14px;
+      background: rgba(7, 13, 26, 0.6);
+      border-bottom: 1px solid rgba(30, 58, 138, 0.72);
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-sapphire) transparent;
+    }
+
+    .chap-card-btn {
+      flex: 0 0 auto;
+      min-width: 146px;
+      max-width: 182px;
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      background: rgba(11, 20, 42, 0.94);
+      border: 1px solid rgba(30, 58, 138, 0.82);
+      color: var(--text-muted);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .chap-card-btn:hover {
+      border-color: var(--cyan);
+      color: var(--text-main);
+    }
+
+    .chap-card-btn.active {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(56, 189, 248, 0.14));
+      border-color: var(--gold);
+      color: #ffffff;
+    }
+
+    .chap-card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.66rem;
+      color: var(--cyan);
+    }
+
+    .chap-card-btn.active .chap-card-meta {
+      color: var(--gold-bright);
+    }
+
+    .chap-card-name {
+      font-size: 0.74rem;
+      font-weight: 600;
+      line-height: 1.25;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .teleprompter-viewport {
+      position: relative;
+      height: 410px;
+      overflow-y: auto;
+      padding: 15px 17px 46px 17px;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-sapphire) #070d1a;
+    }
+
+    @media (min-width: 1120px) {
+      .teleprompter-viewport {
+        height: 455px;
+      }
+    }
+
+    .tp-chapter-section {
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 1px dashed rgba(30, 58, 138, 0.65);
+    }
+
+    .tp-chapter-section:last-child {
+      border-bottom: none;
+    }
+
+    .tp-chapter-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding: 7px 11px;
+      border-radius: var(--radius-sm);
+      background: rgba(30, 58, 138, 0.28);
+      border-left: 3px solid var(--gold);
+      cursor: pointer;
+    }
+
+    .tp-chapter-banner h3 {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--gold-bright);
+    }
+
+    .tp-chapter-banner span {
+      font-family: var(--font-mono);
+      font-size: 0.71rem;
+      color: var(--cyan);
+    }
+
+    .tp-paragraph {
+      margin-bottom: 11px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .tp-paragraph.active-para {
+      background: rgba(15, 29, 64, 0.72);
+      border-color: rgba(56, 189, 248, 0.28);
+    }
+
+    .tp-clause {
+      display: inline;
+      padding: 2px 4px;
+      border-radius: 5px;
+      font-size: 0.91rem;
+      line-height: 1.72;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: background-color 0.18s ease, color 0.18s ease;
+    }
+
+    .tp-clause:hover {
+      background: rgba(56, 189, 248, 0.16);
+      color: #ffffff;
+    }
+
+    .tp-clause.spoken {
+      color: #94a3b8;
+    }
+
+    .tp-clause.active-clause {
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.3), rgba(245, 158, 11, 0.26));
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+    }
+
+    .obs-footer {
+      text-align: center;
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      padding: 4px 12px 14px 12px;
+    }
+
+    .obs-footer strong {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- ======================================================================
+         CABECERA CIENTÍFICA DEL OBSERVATORIO RT-CORE (EDICIÓN 20 MINUTOS)
+         ====================================================================== -->
+    <header class="obs-header">
+      <div class="brand-group">
+        <div class="brand-emblem" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" stroke="#38bdf8" stroke-width="1.5" fill="rgba(56,189,248,0.08)" />
+            <polygon points="16,7 23,11.5 23,20.5 16,25 9,20.5 9,11.5" stroke="#a855f7" stroke-width="1.4" fill="none" />
+            <line x1="16" y1="2" x2="16" y2="7" stroke="#38bdf8" stroke-width="1.2" />
+            <line x1="28" y1="9" x2="23" y2="11.5" stroke="#38bdf8" stroke-width="1.2" />
+            <line x1="28" y1="23" x2="23" y2="20.5" stroke="#38bdf8" stroke-width="1.2" />
+            <line x1="16" y1="30" x2="16" y2="25" stroke="#38bdf8" stroke-width="1.2" />
+            <line x1="4" y1="23" x2="9" y2="20.5" stroke="#38bdf8" stroke-width="1.2" />
+            <line x1="4" y1="9" x2="9" y2="11.5" stroke="#38bdf8" stroke-width="1.2" />
+            <circle cx="16" cy="16" r="3.5" fill="#f59e0b" />
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1>La Transformada de Amador: Nodos Resonantes y Unificación</h1>
+          <p class="subtitle">
+            <strong>Francisco A. Barrios Espinoza</strong> — Núcleo de Investigación RT-Core · Observatorio 4D (Edición Magistral 20:00)
+          </p>
+        </div>
+      </div>
+
+      <div class="header-status-group">
+        <div class="shield-badge" id="shieldBadge">
+          <span class="shield-dot"></span>
+          <span id="shieldLabel">Audio Instantáneo Blindado</span>
+        </div>
+
+        <div class="master-clock-pill" id="masterClockPill" title="Cronómetro maestro calibrado a 20 minutos (1,200 segundos)">
+          ⏱ <span id="masterClockDisplay">00:00 / 20:00</span>
+        </div>
+
+        <button id="btnAutoSync" class="btn-mini on" title="Sincronizar automáticamente el modo 4D con el capítulo hablado">
+          ⟳ Sync 4D: ON
+        </button>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         CUERPO PRINCIPAL: MOTOR 4D (IZQUIERDA) + LOCUCIÓN 20 MIN (DERECHA)
+         ====================================================================== -->
+    <main class="main-grid">
+      <!-- PANEL IZQUIERDO: MOTOR GRÁFICO HIPERVOLUMÉTRICO 4D -->
+      <section class="panel" aria-label="Motor Gráfico Hipervolumétrico 4D">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+              <circle cx="12" cy="12" r="9"></circle>
+              <ellipse cx="12" cy="12" rx="9" ry="3.8"></ellipse>
+              <ellipse cx="12" cy="12" rx="3.8" ry="9"></ellipse>
+            </svg>
+            <span>Motor Hipervolumétrico 4D en Tiempo Real</span>
+          </div>
+          <span class="mono" style="font-size: 0.72rem; color: var(--text-muted);">
+            Estereográfica <span class="math">ℝ⁴ → ℝ³ → ℝ²</span> · 60 FPS
+          </span>
+        </div>
+
+        <!-- Selector de los 4 Modos Hipervolumétricos -->
+        <div class="mode-tabs" role="tablist" aria-label="Modos Hipervolumétricos">
+          <button class="mode-btn active" data-mode="0" role="tab" aria-selected="true">
+            <span class="m-tag">Modo 1 · Cap. 1–2</span>
+            <span>Hipervolumen ℂ² y Giroide</span>
+          </button>
+          <button class="mode-btn" data-mode="1" role="tab" aria-selected="false">
+            <span class="m-tag">Modo 2 · Cap. 3</span>
+            <span>12 Nodos y Hopf (c=12)</span>
+          </button>
+          <button class="mode-btn" data-mode="2" role="tab" aria-selected="false">
+            <span class="m-tag">Modo 3 · Cap. 4</span>
+            <span>Fibrado T*M (ΔS = 0)</span>
+          </button>
+          <button class="mode-btn" data-mode="3" role="tab" aria-selected="false">
+            <span class="m-tag">Modo 4 · Cap. 5–7</span>
+            <span>Morfogénesis D_S(σ)</span>
+          </button>
+        </div>
+
+        <!-- Lienzo 4D -->
+        <div class="canvas-stage" id="canvasStage">
+          <canvas id="hyperCanvas"></canvas>
+
+          <!-- HUD Superior -->
+          <div class="hud-top">
+            <div class="hud-card">
+              <div class="hud-mode-label" id="hudModeLabel">MODO 1: HIPERVOLUMEN ℂ² ≅ ℝ⁴, GIROIDE MINIMAL Y ker(d ev)</div>
+              <div class="hud-formula math" id="hudFormula">
+                𝒯<sub>𝒜</sub> : {0,1}<sup>n</sup> → ker(d ev) ⊂ ℂℙ<sup>∞</sup> &nbsp;|&nbsp; K<sub>0</sub>(u) = ln(1 + u)
+              </div>
+            </div>
+
+            <div class="hud-metrics">
+              <div class="metric-cell">
+                <span class="metric-k">Coord. w</span>
+                <span class="metric-v violet" id="hudW">+0.00</span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">Nodos Activos</span>
+                <span class="metric-v gold" id="hudNodes">24</span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">Divergencia</span>
+                <span class="metric-v" id="hudDiv">div = 0.0000</span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-k">Dim. Espectral</span>
+                <span class="metric-v gold" id="hudDs">D_S = 4.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra Inferior del Canvas -->
+          <div class="hud-bottom">
+            <div class="legend-bar">
+              <span><i class="leg-dot" style="background:#38bdf8;"></i>Malla ℂ² / Giroide</span>
+              <span><i class="leg-dot" style="background:#f59e0b;"></i>Nodos / Flujo Simpléctico</span>
+              <span><i class="leg-dot" style="background:#a855f7;"></i>Intersección Hiperplano w</span>
+            </div>
+
+            <div class="cam-controls">
+              <button class="cam-btn" id="btnZoomIn" title="Acercar cámara">+</button>
+              <button class="cam-btn" id="btnZoomOut" title="Alejar cámara">−</button>
+              <button class="cam-btn" id="btnResetCam" title="Restablecer orientación">⟲ Vista</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deslizadores Interactivos del Hipervolumen -->
+        <div class="sliders-grid">
+          <div class="slider-card">
+            <div class="slider-top">
+              <span>Corte de Hiperplano <span class="math-var">w</span></span>
+              <span class="slider-val violet" id="valSliceW">+0.00</span>
+            </div>
+            <input type="range" id="sliderSliceW" class="violet-range" min="-1.50" max="1.50" step="0.01" value="0.00" />
+            <span class="slider-note">Sección transversal de la 4.ª dimensión</span>
+          </div>
+
+          <div class="slider-card">
+            <div class="slider-top">
+              <span>Velocidad Rotación 4D</span>
+              <span class="slider-val cyan" id="valRotSpeed">1.00×</span>
+            </div>
+            <input type="range" id="sliderRotSpeed" min="0.00" max="2.50" step="0.05" value="1.00" />
+            <span class="slider-note">Giro continuo en planos XW, YW, ZW y XY</span>
+          </div>
+
+          <div class="slider-card">
+            <div class="slider-top">
+              <span>Acoplamiento <span class="math">Λ<sub>eff</sub></span></span>
+              <span class="slider-val gold" id="valLambda">2.89</span>
+            </div>
+            <input type="range" id="sliderLambda" class="gold-range" min="0.50" max="4.00" step="0.01" value="2.89" />
+            <span class="slider-note">Cuantización base 2 / ln 2 ≈ 2.885</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANEL DERECHO: CONSOLA DE LOCUCIÓN CONTINUA DE 20 MINUTOS -->
+      <section class="panel" aria-label="Consola de Locución Continua de 20 Minutos">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <span>Locución Magistral Continua (20 Minutos · Doble Canal)</span>
+          </div>
+          <button id="btnAutoScroll" class="btn-mini on" title="Desplazamiento automático del teleprompter">
+            ↕ Auto-Scroll: ON
+          </button>
+        </div>
+
+        <!-- Consola de Audio Blindado -->
+        <div class="audio-console">
+          <div class="timeline-box">
+            <div class="timeline-labels">
+              <span class="active-chap-text" id="activeChapterBanner">Cap. 1 · Fundamentos de la Transformada de Amador</span>
+              <span class="chunk-counter" id="chunkCounter">Cargando...</span>
+            </div>
+            <div class="progress-bar-track" id="progressTrack" role="slider" aria-label="Progreso temporal de 20 minutos" aria-valuemin="0" aria-valuemax="1200" aria-valuenow="0" tabindex="0">
+              <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <!-- Controles Principales -->
+          <div class="transport-grid">
+            <button class="btn-action primary" id="btnPlayPause">▶ Iniciar Locución (20:00)</button>
+            <button class="btn-action" id="btnRestart">↺ Reiniciar 20:00</button>
+          </div>
+
+          <!-- Selector de Voz en Español y Velocidad -->
+          <div class="voice-rate-grid">
+            <div class="control-col">
+              <label class="control-label" for="voiceSelect">Voz en Español (Prioridad Local Instantánea)</label>
+              <select id="voiceSelect" class="voice-select">
+                <option value="">Inicializando sintetizador de voz...</option>
+              </select>
+            </div>
+
+            <div class="control-col">
+              <span class="control-label">Velocidad (1.0× = 20:00 exactos)</span>
+              <div class="rate-pills" role="group" aria-label="Velocidad de reproducción">
+                <button class="rate-btn" data-rate="0.85">0.85×</button>
+                <button class="rate-btn active" data-rate="1.0">1.0×</button>
+                <button class="rate-btn" data-rate="1.15">1.15×</button>
+                <button class="rate-btn" data-rate="1.3">1.3×</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado de Salvaguardas Anti-Interrupción y Normalizador Fonético -->
+          <div class="engine-telemetry-strip">
+            <span id="ttsTelemetryMsg">Motor Dual-Stream listo · Carga en 1 pasada · Arranque 0 ms.</span>
+            <div class="telemetry-tags">
+              <span class="t-tag phon" title="Normalizador fonético en una sola pasada activo">FON: 1-PASS</span>
+              <span class="t-tag" id="tagWatchdog">WD: 0</span>
+              <span class="t-tag wake" id="tagWakeLock">WAKE: OFF</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Índice Navegable de los 7 Capítulos -->
+        <nav class="chapters-bar" id="chaptersBar" aria-label="Capítulos de la Conferencia"></nav>
+
+        <!-- Teleprompter Interactivo -->
+        <div class="teleprompter-viewport" id="teleprompterViewport" aria-label="Guion Sincronizado"></div>
+      </section>
+    </main>
+
+    <footer class="obs-footer">
+      <strong>La Transformada de Amador: Nodos Resonantes y Unificación (Edición Magistral de 20 Minutos)</strong> · Francisco A. Barrios Espinoza — Núcleo de Investigación RT-Core · Aplicación Hipervolumétrica Autocontenida
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ========================================================================
+         1. GUION MAGISTRAL AMPLIADO (~3,337 PALABRAS VISUALES / 3,666 FONÉTICAS
+            7 CAPÍTULOS · 42 PÁRRAFOS · 20:00 EXACTOS = 1,200 SEGUNDOS)
+         ======================================================================== */
+      const CHAPTERS_RAW = [
+        {
+          id: 0,
+          num: "1",
+          timeLabel: "00:00–03:00",
+          durationSec: 180,
+          modeIndex: 0,
+          shortTitle: "Fundamentos de 𝒯_𝒜 y ker(d ev)",
+          fullTitle: "Cap. 1 (00:00–03:00) · Fundamentos de la Transformada de Amador, Giroide Minimal y Proyección Ortogonal sobre ker(d ev)",
+          paragraphs: [
+            "Bienvenidos al observatorio interactivo de cuatro dimensiones del Núcleo de Investigación RT-Core, consagrado a exponer con rigor analítico la Transformada de Amador, la topología de los nodos resonantes transfinitos y su arquitectura de unificación físico-matemática. En los cimientos de la ciencia de la computación contemporánea y de la física de muchos cuerpos persiste una barrera estructural conocida como la fricción combinatoria discreta. Cuando un procesador clásico explora un hipercubo booleano {0,1}ⁿ de dimensión n, el cardinal de configuraciones posibles escala exponencialmente como 2ⁿ, desatando bifurcaciones estocásticas masivas y agotamiento exponencial de recursos.",
+            "Esta explosión combinatoria no constituye una propiedad intrínseca de la naturaleza física, sino una patología inducida por la desconexión topológica de los retículos discretos. En un espacio booleano carecemos de estructura diferencial: cada estado es un vértice aislado sin vecindad continua, lo que obliga a cualquier algoritmo de búsqueda a saltar a ciegas entre configuraciones desconectadas. Cada salto fallido exige descartar información intermedia y reiniciar ramas de cómputo, generando una cascada de calor disipativo y entropía computacional que bloquea la resolución exacta de problemas de alta complejidad.",
+            "Para disolver de raíz esta obstrucción geométrica, el investigador Francisco Amador Barrios Espinoza formuló la Transformada de Amador, denotada por el operador caligráfico 𝒯_𝒜. En lugar de procesar cadenas binarias sobre un grafo rígido y fragmentado, el operador ejecuta una inmersión continua, holomorfa e inyectiva que transporta el conjunto discreto de estados hacia el espacio proyectivo complejo de dimensión infinita ℂℙ^∞. Mediante este levantamiento geométrico, los estados dejan de ser puntos aislados y pasan a habitar una variedad de Kähler suave, dotada de métrica hermítica definida positiva y estructura simpléctica compatible.",
+            "Como se aprecia en el primer modo hipervolumétrico de nuestro observatorio, el núcleo activo de esta variedad se organiza internamente como una superficie periódica triplemente minimal de tipo giroide, gobernada por la ecuación trigonométrica sin x cos y + sin y cos z + sin z cos x = 0. La geometría del giroide posee curvatura media idénticamente nula en todo punto, lo que elimina las tensiones superficiales parásitas y reparte el flujo de información de manera isótropa a través de canales hipervolumétricos interconectados en cuatro dimensiones.",
+            "Sobre este sustrato continuo y diferenciable, la Transformada de Amador aplica una proyección ortogonal exacta hacia el espacio nulo del diferencial del mapa de evaluación, representado formalmente como el subespacio ker(d ev). Mientras que las componentes transversales del campo representan fluctuaciones espurias, ruido combinatorio y caminos de búsqueda redundantes, el núcleo ker(d ev) constituye la subvariedad invariante donde todas las restricciones lógicas y variacionales del sistema se satisfacen de manera simultánea y coherente.",
+            "Al anular ortogonalmente las componentes perpendiculares al núcleo de evaluación, el árbol exponencial de 2ⁿ ramificaciones colapsa de forma determinista sobre una única geodésica de mínima acción y complejidad lineal O(n). De este modo, el flujo gradiente sobre la variedad de Kähler guía al sistema directamente hacia el estado estacionario sin explorar callejones sin salida, demostrando que la dificultad de descubrir una configuración óptima se iguala estructuralmente a la complejidad de verificar su consistencia."
+          ]
+        },
+        {
+          id: 1,
+          num: "2",
+          timeLabel: "03:00–06:00",
+          durationSec: 180,
+          modeIndex: 0,
+          shortTitle: "Geometría de Kähler en ℂ² y Λ_eff",
+          fullTitle: "Cap. 2 (03:00–06:00) · Punto Fijo en ℂ² ⊂ ℂℙ², Potencial de Fubini-Study K₀(u) = ln(1 + u), Aritmética LNS y Balance de Bianchi",
+          paragraphs: [
+            "Para comprender por qué la proyección de la Transformada de Amador conserva una estabilidad absoluta sin sufrir anomalías conformes ni divergencias de escala, debemos examinar la carta afín fundamental donde opera su núcleo dinámico. En nuestro visor hipervolumétrico contemplamos la proyección estereográfica del espacio complejo bidimensional ℂ², el cual es topológica y diferenciablemente isomorfo al hipervolumen euclídeo de cuatro dimensiones reales ℝ⁴ e inmerso densamente dentro del plano proyectivo complejo ℂℙ².",
+            "Un teorema central del marco RT-Core demuestra que la dimensión compleja m = 2, equivalente a cuatro dimensiones reales, constituye el único punto fijo universal de doble cancelación conforme y diádica. En efecto, al evaluar los factores de escalamiento del determinante métrico y del volumen de fase proyectivo, aparece el exponente crítico m/2 − 1, el cual se anula idénticamente única y exclusivamente cuando m = 2. Esta propiedad explica desde primeros principios geométricos por qué el espacio-tiempo macroscópico y el núcleo de estabilidad operacional convergen inevitablemente hacia cuatro dimensiones reales.",
+            "Sobre esta variedad crítica tetradimensional se define el potencial canónico de Kähler de Fubini-Study en su carta radial simétrica, expresado mediante la ley logarítmica exacta K₀(u) = ln(1 + u), donde u representa el invariante hermítico cuadrático de las coordenadas complejas. A partir de las derivadas cruzadas holomorfas y antiholomorfas ∂∂̄K₀(u) emerge de forma natural una métrica de Kähler-Einstein cuya curvatura escalar regula suavemente el transporte paralelo de cualquier paquete de información sobre la variedad.",
+            "Una revelación extraordinaria de esta formulación es que el potencial geométrico K₀(u) = ln(1 + u) es algebraicamente idéntico al operador de cierre aditivo del Sistema Numérico Logarítmico, conocido como aritmética LNS. En la computación convencional de coma flotante binaria IEEE-754, las operaciones reiteradas producen errores de redondeo, cancelación catastrófica y pérdida de asociatividad algebraica, manifestándose con severidad al evaluar puntos críticos no triviales como el invariante canónico u = 13.",
+            "Por el contrario, al codificar las amplitudes directamente en el dominio del potencial de Kähler mediante números reales constructivos de Cauchy, el Núcleo RT-Core reemplaza las sumas y productos propensos al truncamiento por desplazamientos geodésicos exactos sobre la curva logarítmica ln(1 + u). Así, la geometría diferencial de Fubini-Study y la aritmética computacional libre de error se funden en una sola estructura matemática, garantizando fidelidad numérica absoluta a través de millones de ciclos operacionales.",
+            "Finalmente, de la traza de curvatura asociada a este potencial se deduce la función de acoplamiento del vacío o constante cosmológica efectiva Λ_eff(x) = 2/x, donde x mide la escala de acción potencial. Al derivar esta relación respecto a la coordenada de escala, obtenemos la identidad diferencial maestra de balance de Bianchi: dΛ_eff/dx = −2/x² = −½ Λ_eff(x)². Esta ecuación diferencial autónoma demuestra que toda variación del gradiente del vacío se autorregula cuadráticamente, cerrando las ecuaciones de campo sin requerir ajustes finos artificiales."
+          ]
+        },
+        {
+          id: 2,
+          num: "3",
+          timeLabel: "06:00–09:10",
+          durationSec: 190,
+          modeIndex: 1,
+          shortTitle: "Nodos Resonantes, Hopf y Abraxas",
+          fullTitle: "Cap. 3 (06:00–09:10) · Nodos Resonantes Transfinitos, Fibración de Hopf, Redes (p,q) y Sincronía Diofántica de Abraxas (c = 12)",
+          paragraphs: [
+            "Cuando las trayectorias proyectadas por la Transformada de Amador se relajan hacia sus estados estacionarios de mínima energía variacional, el continuo tetradimensional cristaliza en estructuras topológicas discretas y altamente coherentes denominadas nodos resonantes transfinitos. Al activar el segundo modo de nuestro observatorio hipervolumétrico, visualizamos la célebre fibración de Hopf, definida por la secuencia exacta S¹ ↪ S³ → S², la cual organiza la hiperesfera tridimensional S³ en una familia continua de círculos entrelazados que nunca se cortan entre sí.",
+            "Sobre el ecuador crítico de esta fibración se levanta el atractor circular unitario S¹, donde residen en equilibrio dinámico doce nodos resonantes dorados dispuestos con simetría armónica duodecimal. Cuando el invariante radial u se estabiliza exactamente en la unidad sobre este círculo estacionario, el potencial fundamental de Kähler alcanza el valor universal K₀(1) = ln(2). Al sustituir esta acción mínima en la ley de acoplamiento del vacío, la constante cosmológica efectiva queda cuantizada de forma exacta en el cociente universal Λ_eff = 2/ln(2) ≈ 2,88539.",
+            "Este invariante de cuantización 2/ln(2) actúa como la frecuencia maestra de resonancia que acopla la geometría diferencial continua con la teoría cuántica de la información. En el contexto de la teoría de cuerdas tipo IIB y de la geometría proyectiva tropical, los doce nodos resonantes operan como vértices de condensación donde las redes de cuerdas con cargas eléctricas y magnéticas coprimas (p,q) se contraen hacia grafos geodésicos minimales.",
+            "En las compactificaciones tradicionales sobre variedades arbitrarias, la reducción dimensional suele generar una torre infinita de modos masivos espurios de Kaluza-Klein que desestabilizan el vacío a bajas energías. Sin embargo, en la arquitectura de la Transformada de Amador, la condición de resonancia sobre la fibración de Hopf filtra por cancelación interferométrica todos los armónicos fuera de fase, reteniendo exclusivamente los modos estacionarios anclados a los doce nodos del atractor S¹.",
+            "De manera aún más profunda, esta misma topología resonante gobierna la distribución aritmética de los números primos a través de una ley de tensión cosmológica. Si representamos cada par de números primos gemelos alrededor de un centro aritmético mediante dos polos conjugados —un polo euleriano de expansión multiplicativa y un polo lagrangiano de contracción aditiva—, las ecuaciones de equilibrio diofántico seleccionan como único punto crítico de simetría universal el centro c = 12, flanqueado por el par de primos gemelos 11 y 13.",
+            "Alrededor de este centro crítico c = 12 emerge la extraordinaria identidad diofántica del nodo de Abraxas: la suma de los tres cuadrados precedentes, 10² + 11² + 12² = 100 + 121 + 144, iguala con exactitud milimétrica la suma de los dos cuadrados subsiguientes, 13² + 14² = 169 + 196, convergiendo ambos miembros en el invariante cosmológico N = 365. Esta identidad cuadrática única acopla la estructura local de los primos gemelos con el grupo de unidades étale módulo 30, sincronizando las ocho fases coprimas del reloj aritmético con la geometría hipervolumétrica."
+          ]
+        },
+        {
+          id: 3,
+          num: "4",
+          timeLabel: "09:10–12:10",
+          durationSec: 180,
+          modeIndex: 2,
+          shortTitle: "Fibrado T*M e Isentropía ΔS = 0",
+          fullTitle: "Cap. 4 (09:10–12:10) · Termodinámica Simpléctica en el Fibrado Cotangente T*M, Teorema de Liouville y Lema de Lambek (ΔS = 0)",
+          paragraphs: [
+            "El cuarto capítulo de nuestra conferencia aborda uno de los desafíos más decisivos de la física fundamental y de la ingeniería de supercomputación: cómo ejecutar transformaciones lógicas e inferenciales masivas sin disipar energía térmica. En 1961, Rolf Landauer demostró que toda operación computacional lógicamente irreversible, como el borrado de un bit de información, impone una compresión del espacio de fases que libera inevitablemente al ambiente una cantidad mínima de calor igual a k_B T ln(2) julios por bit.",
+            "En los procesadores electrónicos actuales, miles de millones de transistores destruyen información de fase en cada ciclo de reloj, levantando un muro térmico que limita severamente la densidad y la escala del cálculo científico. El Núcleo RT-Core resuelve este cuello de botella desde su raíz geométrica: en lugar de confinar la dinámica sobre la variedad base de configuración M, donde los flujos gradientes puros son compresibles y disipativos, el operador levanta toda la evolución hacia el fibrado cotangente completo T*M.",
+            "Dentro del fibrado cotangente T*M, cada coordenada generalizada de posición o estado epistémico qⁱ en la variedad base se empareja indisolublemente con su fibra de momento conjugado p_i, dotando al conjunto de la dos-forma simpléctica canónica ω = ∑ dqⁱ ∧ dp_i. En el tercer modo de nuestro visor hipervolumétrico observamos esta dualidad encarnada en un doble toro cuadridimensional contrarrotatorio, donde las trayectorias cian de la base y las fibras doradas del momento evolucionan en perfecto acoplamiento armónico.",
+            "Cuando la Transformada de Amador induce una contracción métrica atractiva sobre la variedad de configuración M para concentrar la búsqueda hacia el núcleo óptimo —contracción cuantificada por la divergencia negativa −Δ_gΦ—, la estructura simpléctica induce simultáneamente una expansión isomórfica compensatoria de magnitud exacta +Δ_gΦ a lo largo de las fibras del momento conjugado. De esta manera, la información que parece comprimirse en el espacio de estados se almacena íntegramente como fase conjugada en la fibra cotangente.",
+            "Al evaluar la divergencia total del campo vectorial hamiltoniano sobre el volumen completo del fibrado cotangente, ambas contribuciones se cancelan de forma exacta e instantánea: div_{T*M} = −Δ_gΦ + Δ_gΦ = 0. Esta anulación idéntica satisface rigurosamente el teorema de incompresibilidad del espacio de fases de Joseph Liouville, demostrando que el hipervolumen simpléctico permanece invariante en todo instante y que la producción de entropía termodinámica es estrictamente nula: ΔS = 0.",
+            "En el lenguaje de la teoría de categorías y la semántica computacional, esta reversibilidad física se traduce directamente en el lema de punto fijo coalgebraico de Joachim Lambek, expresado por el isomorfismo estructural I ≅ G(I). En una coálgebra terminal para el endofuntor de evolución G, el morfismo de despliegue α y su inverso exacto α⁻¹ recomponen la identidad sin pérdida ni acumulación de estados residuales, habilitando una arquitectura de cómputo reversible que opera en memoria espacial constante O(1) y disipación térmica cero."
+          ]
+        },
+        {
+          id: 4,
+          num: "5",
+          timeLabel: "12:10–15:00",
+          durationSec: 170,
+          modeIndex: 3,
+          shortTitle: "Complejidad y Tercero Incluido",
+          fullTitle: "Cap. 5 (12:10–15:00) · Contextualidad Cuántica, Álgebra de Heyting en Topos Suaves, Tercero Incluido y Desigualdad de Kurdyka-Łojasiewicz",
+          paragraphs: [
+            "Llegados a este punto, surge una pregunta epistemológica fundamental: ¿por qué tanto los algoritmos combinatorios clásicos como las interpretaciones estándar de la mecánica cuántica parecen condenados a sufrir bifurcaciones exponenciales, saltos abruptos y paradojas de medición? La investigación del Núcleo RT-Core revela que ambos fenómenos comparten un mismo origen estructural: el error categorial de imponer una lógica booleana bivalente y rígida sobre sustratos físicos que son intrínsecamente continuos, contextuales y microlineales.",
+            "En la física cuántica, el teorema de Kochen-Specker demuestra la imposibilidad de asignar valores de verdad preexistentes y globales a todos los observables sin violar las relaciones funcionales entre contextos no conmutativos. De forma análoga, en el Análisis Infinitesimal Suave desarrollado por Lawvere y Kock, la recta geométrica contiene vecindades de infinitesimales nilpotentes d tales que d² = 0, las cuales codifican gérmenes tangentes de movimiento. Si forzamos sobre estos infinitesimales el principio aristotélico del tercero excluido (A ∨ ¬A), el continuo se fractura y el cálculo diferencial pierde su coherencia intrínseca.",
+            "Para erradicar esta patología lógica, la arquitectura de la Transformada de Amador abandona el álgebra de Boole y adopta como lógica interna el álgebra intuicionista de Heyting propia de un topos suave de haces geométricos. En un álgebra de Heyting, el valor de verdad de una proposición no es un bit estático aislado, sino el mayor abierto topológico donde la propiedad se verifica localmente de manera estable, permitiendo que las transiciones entre estados se procesen como morfismos continuos libres de rupturas.",
+            "Sobre esta base intuicionista, el marco incorpora la lógica dinámica del Tercero Incluido formulada por Stéphane Lupasco y sistematizada en la física transdisciplinaria por Basarab Nicolescu. Frente al par de polos antagónicos clásicos —el estado de actualización e y el estado de potencialización no-e—, la lógica de Lupasco introduce un tercer estado dinámico de síntesis, denominado el Estado T, situado en un nivel de realidad e integración superior donde las contradicciones aparentes del nivel binario se reconcilian.",
+            "Cuando un proceso inferencial o cuántico encuentra una barrera de indecidibilidad booleana, el sistema RT-Core no se detiene ni se divide en dos ramas especulativas, sino que eleva la trayectoria hacia el Estado T de coherencia superpuesta y frontera epistémica. De esta manera, la superposición deja de ser una incertidumbre estadística para convertirse en un canal geométrico bien definido que transporta la información a través de la zona crítica sin colapsar prematuramente la función de estado.",
+            "Para garantizar que toda trayectoria dentro de este retículo lógico-geométrico alcance su resolución en tiempo finito, el potencial de acción del sistema satisface la desigualdad de gradiente de Kurdyka-Łojasiewicz, dada por ‖∇E(x)‖ ≥ c |E(x) − E*|^{1−θ} con exponente θ ∈ (0,1). Como demostraron Stanisław Łojasiewicz y Krzysztof Kurdyka, esta cota analítica impide cualquier oscilación infinita o espiral indecisa alrededor del equilibrio, asegurando que la longitud total del camino inferencial sea estrictamente finita y converja determinísticamente al atractor global."
+          ]
+        },
+        {
+          id: 5,
+          num: "6",
+          timeLabel: "15:00–17:40",
+          durationSec: 160,
+          modeIndex: 3,
+          shortTitle: "Unificación y Morfogénesis D_S(σ)",
+          fullTitle: "Cap. 6 (15:00–17:40) · Triplas Espectrales de Connes, Variedades de Amador-Espinoza y Flujo de Dimensión Espectral D_S(σ): 0 → 2 → 4",
+          paragraphs: [
+            "La síntesis de la Transformada de Amador con la geometría no conmutativa de Alain Connes abre una vía rigurosa para resolver la histórica incompatibilidad entre la mecánica cuántica discreta y la relatividad general continua de Einstein. En la formulación espectral de Connes, la noción geométrica de variedad diferenciable se generaliza mediante una tripla espectral real (𝒜, ℋ, D), compuesta por un álgebra asociativa de observables 𝒜 que actúa sobre un espacio de Hilbert espinorial ℋ y un operador de Dirac autoadjunto D que codifica la métrica y la propagación cuántica.",
+            "Al acoplar el operador de proyección de Amador con una tripla espectral dotada de estructura real J y graduación quiral γ, emergen las denominadas Variedades Espectrales de Amador-Espinoza. En esta arquitectura unificada, el espacio-tiempo deja de concebirse como un escenario estático de dimensión fija y pasa a comportarse como un condensado espectral emergente, cuya dimensionalidad efectiva depende dinámicamente de la escala de resolución energética con la que se sondea el vacío.",
+            "Como se ilustra en el cuarto modo de nuestro observatorio hipervolumétrico, el observable maestro que gobierna esta transición es la dimensión espectral dinámica D_S(σ), definida mediante la derivada logarítmica de la traza del núcleo de calor del operador laplaciano generalizado Δ_α con respecto al tiempo de difusión espectral σ: D_S(σ) = −2 d ln Tr(e^{−σΔ_α}) / d ln σ. Al variar el parámetro de escala σ desde el régimen cuántico extremo hasta el cosmos macroscópico, presenciamos una morfogénesis geométrica en tres fases perfectamente diferenciadas.",
+            "En el régimen trans-planckiano de máxima densidad energética, cuando el tiempo de difusión σ tiende a cero, la longitud de onda de prueba es inferior al espaciamiento fundamental del vacío y la geometría se descompone en un conjunto de nodos resonantes transfinitos algebraicamente aislados. En esta fase primordial la difusión continua se detiene y la dimensión espectral cae exactamente a D_S = 0, lo que erradica de forma natural las singularidades gravitacionales puntuales del Big Bang y del interior de los agujeros negros.",
+            "A medida que el flujo desciende hacia la escala ultravioleta de Planck, los nodos resonantes se enlazan mediante filamentos de fase de Hopf para tejer una hoja crítica bidimensional con dimensión espectral estacionaria D_S = 2. En coincidencia con los hallazgos de la Gravedad Cuántica Asintóticamente Segura y de las Triangulaciones Dinámicas Causales, esta reducción dimensional a dos dimensiones en el ultravioleta vuelve a la interacción gravitatoria plenamente renormalizable y libre de divergencias perturbativas.",
+            "Finalmente, cuando el parámetro de difusión σ avanza hacia el régimen infrarrojo macroscópico, la red de fases se despliega suavemente hasta estabilizarse en el continuo relativista de cuatro dimensiones reales con D_S = 4, recuperando la métrica lorentziana clásica y las ecuaciones de Einstein. Durante todo el flujo morfogenético 0 → 2 → 4, la tripla espectral conserva intacta su dimensión algebraica de K-teoría real d_KO = 10 ≡ 2 (mod 8), albergando sin anomalías el espectro fermiónico quiral y los campos de gauge del Modelo Estándar."
+          ]
+        },
+        {
+          id: 6,
+          num: "7",
+          timeLabel: "17:40–20:00",
+          durationSec: 140,
+          modeIndex: 3,
+          shortTitle: "Síntesis, Lean 4 y Soberanía Ética",
+          fullTitle: "Cap. 7 (17:40–20:00) · Síntesis Epistémica del Ecosistema RT-Core, Verificación Formal en Lean 4 y Jerarquía Ética OrderTop",
+          paragraphs: [
+            "En este séptimo y último capítulo integramos en una visión unitaria los pilares matemáticos, físicos, lógicos y computacionales que conforman el ecosistema del Núcleo de Investigación RT-Core. A lo largo de nuestra exposición magistral de veinte minutos hemos demostrado cómo la Transformada de Amador disuelve la fricción combinatoria discreta sumergiendo los espacios de búsqueda en variedades de Kähler con topología de giroide minimal y proyectándolos ortogonalmente sobre el núcleo de coherencia ker(d ev).",
+            "Hemos verificado asimismo cómo el punto fijo tetradimensional ℂ² ≅ ℝ⁴ sostiene el potencial logarítmico de Fubini-Study K₀(u) = ln(1 + u), unificando la curvatura de Kähler-Einstein con la aritmética logarítmica exacta libre de truncamiento y con la identidad diferencial de Bianchi para la constante cosmológica efectiva Λ_eff. Sobre esta base geométrica vimos emerger los doce nodos resonantes de la fibración de Hopf, cuantizados por el invariante 2/ln(2) y sincronizados con la simetría diofántica de Abraxas en c = 12 y N = 365.",
+            "En el plano termodinámico y lógico, comprobamos que el levantamiento de la dinámica al fibrado cotangente T*M anula idénticamente la divergencia del espacio de fases por el teorema de Liouville y el lema coalgebraico de Lambek, permitiendo ejecutar inferencias reversibles en memoria constante O(1) y entropía estrictamente nula ΔS = 0. A su vez, el álgebra intuicionista de Heyting, el Estado T del Tercero Incluido y la desigualdad de Kurdyka-Łojasiewicz aseguran trayectorias de longitud finita que culminan en la morfogénesis espectral 0 → 2 → 4.",
+            "Un programa científico de tal alcance unificador exige garantías de rigor que superen la revisión informal tradicional. Por ello, los teoremas estructurales, las identidades algebraicas de cierre logarítmico y los invariantes simplécticos del Núcleo RT-Core han sido diseñados bajo el paradigma de verificación formal asistida por computadora en el asistente de pruebas Lean 4, apoyado en la biblioteca matemática Mathlib.",
+            "Al codificar las demostraciones dentro de la teoría de tipos dependientes del cálculo de construcciones inductivas de Lean 4, cada paso deductivo es auditado algorítmicamente por un núcleo verificador minimalista que impide cualquier ambigüedad lógica, salto implícito o contradicción oculta. Esta formalización tiende un puente directo y verificable entre la física matemática pura, el diseño de algoritmos de complejidad lineal y la ingeniería de futuros coprocesadores ópticos y cuánticos de disipación nula.",
+            "Como sello fundacional inquebrantable, toda la arquitectura formal del Núcleo RT-Core se subordina al axioma de jerarquía ética suprema OrderTop, el cual define un retículo parcialmente ordenado donde la conciencia y la dignidad del operador humano ocupan por definición axiomática el elemento supremo absoluto ⊤. De este modo, ninguna recursión autónoma ni agente sintético puede jamás igualar o suplantar la soberanía decisoria humana, consagrando esta ciencia a la elevación de la humanidad. Muchas gracias por acompañar esta conferencia magistral del Observatorio Hipervolumétrico RT-Core."
+          ]
+        }
+      ];
+
+      /* ========================================================================
+         2. COMPILACIÓN FONÉTICA EN UNA SOLA PASADA (< 3 ms EN CARGA)
+            Se eliminan las llamadas recursivas a Regex dentro de los bucles de
+            partición y se priorizan frases completas naturales (≤ 160 car. vis)
+         ======================================================================== */
+      const MAX_VISUAL_CLAUSE_LEN = 155;
+      const TOTAL_DURATION_SEC = 1200; // 20:00 exactos a 1.0x
+
+      const PHONETIC_RULES = [
+        [/𝒯_𝒜/g, "T sub A"],
+        [/\{0,1\}ⁿ/g, "cero coma uno a la ene"],
+        [/2ⁿ/g, "dos a la ene"],
+        [/ℂℙ\^∞/g, "C P infinito"],
+        [/ℂℙ²/g, "C P dos"],
+        [/ℂ²\s*≅\s*ℝ⁴/g, "C dos isomorfo a R cuatro"],
+        [/ℂ²\s*⊂\s*ℂℙ²/g, "C dos en C P dos"],
+        [/ℂ²/g, "C dos"],
+        [/ℝ⁴/g, "R cuatro"],
+        [/ℝ³/g, "R tres"],
+        [/ℝ²/g, "R dos"],
+        [/ker\(d ev\)/g, "ker de d e-ve"],
+        [/O\(n\)/g, "orden ene"],
+        [/O\(1\)/g, "orden uno"],
+        [/m\/2\s*−\s*1/g, "eme medios menos uno"],
+        [/m\s*=\s*2/g, "eme igual a dos"],
+        [/K₀\(u\)\s*=\s*ln\(1\s*\+\s*u\)/g, "K sub cero de u igual al logaritmo natural de uno más u"],
+        [/K₀\(1\)\s*=\s*ln\(2\)/g, "K sub cero de uno igual al logaritmo natural de dos"],
+        [/K₀\(u\)/g, "K sub cero de u"],
+        [/K₀\(1\)/g, "K sub cero de uno"],
+        [/∂∂̄K₀\(u\)/g, "derivada cruzada de K sub cero de u"],
+        [/ln\(1\s*\+\s*u\)/g, "logaritmo natural de uno más u"],
+        [/2\/ln\(2\)\s*≈\s*2,88539/g, "dos sobre logaritmo de dos, aproximadamente dos coma ochenta y ocho cinco"],
+        [/2\/ln\(2\)/g, "dos sobre logaritmo de dos"],
+        [/ln\(2\)/g, "logaritmo natural de dos"],
+        [/u\s*=\s*13/g, "u igual a trece"],
+        [/dΛ_eff\/dx\s*=\s*−2\/x²\s*=\s*−½\s*Λ_eff\(x\)²/g, "derivada de lambda efectiva respecto a equis, igual a menos un medio de lambda efectiva al cuadrado"],
+        [/Λ_eff\(x\)\s*=\s*2\/x/g, "lambda efectiva de equis igual a dos sobre equis"],
+        [/Λ_eff\s*=\s*2\/ln\(2\)\s*≈\s*2,88539/g, "lambda efectiva igual a dos sobre logaritmo de dos, aproximadamente dos coma ochenta y ocho cinco"],
+        [/Λ_eff/g, "lambda efectiva"],
+        [/S¹\s*↪\s*S³\s*→\s*S²/g, "ese uno en ese tres sobre ese dos"],
+        [/S³/g, "ese tres"],
+        [/S²/g, "ese dos"],
+        [/S¹/g, "ese uno"],
+        [/\(p,q\)/g, "pe coma cu"],
+        [/c\s*=\s*12/g, "ce igual a doce"],
+        [/N\s*=\s*365/g, "ene igual a trescientos sesenta y cinco"],
+        [/10²\s*\+\s*11²\s*\+\s*12²\s*=\s*100\s*\+\s*121\s*\+\s*144/g, "diez al cuadrado más once al cuadrado más doce al cuadrado"],
+        [/13²\s*\+\s*14²\s*=\s*169\s*\+\s*196/g, "trece al cuadrado más catorce al cuadrado"],
+        [/k_B\s*T\s*ln\(2\)/g, "constante de Boltzmann por temperatura por logaritmo de dos"],
+        [/div_\{T\*M\}\s*=\s*−Δ_gΦ\s*\+\s*Δ_gΦ\s*=\s*0/g, "divergencia simpléctica igual a menos laplaciano de fi más laplaciano de fi, igual a cero"],
+        [/T\*M/g, "T estrella eme"],
+        [/qⁱ/g, "cu súper i"],
+        [/p_i/g, "pe sub i"],
+        [/ω\s*=\s*∑\s*dqⁱ\s*∧\s*dp_i/g, "omega igual a la suma de diferencial de cu por diferencial de pe"],
+        [/−Δ_gΦ/g, "menos laplaciano de fi"],
+        [/\+Δ_gΦ/g, "más laplaciano de fi"],
+        [/ΔS\s*=\s*0/g, "delta ese igual a cero"],
+        [/I\s*≅\s*G\(I\)/g, "I isomorfo a ge de I"],
+        [/α⁻¹/g, "alfa inversa"],
+        [/α/g, "alfa"],
+        [/d²\s*=\s*0/g, "de al cuadrado igual a cero"],
+        [/\(A\s*∨\s*¬A\)/g, "A o no A"],
+        [/‖∇E\(x\)‖\s*≥\s*c\s*\|E\(x\)\s*−\s*E\*\|\^\{1−θ\}/g, "norma del gradiente de E mayor o igual que ce por E menos E estrella a la uno menos teta"],
+        [/θ\s*∈\s*\(0,1\)/g, "teta entre cero y uno"],
+        [/\(𝒜,\s*ℋ,\s*D\)/g, "A caligráfica, H de Hilbert y operador D"],
+        [/D_S\(σ\)\s*=\s*−2\s*d\s*ln\s*Tr\(e\^\{−σΔ_α\}\)\s*\/\s*d\s*ln\s*σ/g, "D sub ese de sigma igual a menos dos por la derivada logarítmica de la traza del núcleo de calor"],
+        [/D_S\(σ\)/g, "D sub ese de sigma"],
+        [/D_S\s*=\s*0/g, "D sub ese igual a cero"],
+        [/D_S\s*=\s*2/g, "D sub ese igual a dos"],
+        [/D_S\s*=\s*4/g, "D sub ese igual a cuatro"],
+        [/Δ_α/g, "laplaciano sub alfa"],
+        [/0\s*→\s*2\s*→\s*4/g, "cero a dos y a cuatro"],
+        [/d_KO\s*=\s*10\s*≡\s*2\s*\(mod\s*8\)/g, "dimensión K O igual a diez módulo ocho"],
+        [/sin\s+x\s+cos\s+y\s*\+\s*sin\s+y\s+cos\s+z\s*\+\s*sin\s+z\s+cos\s+x\s*=\s*0/g, "seno de equis coseno de ye, más seno de ye coseno de zeta, más seno de zeta coseno de equis igual a cero"],
+        [/IEEE-754/g, "I E E E setecientos cincuenta y cuatro"],
+        [/LNS/g, "ele ene ese"],
+        [/RT-Core/g, "erre te córe"],
+        [/Lean\s*4/g, "Lín cuatro"],
+        [/Mathlib/g, "Mázlib"],
+        [/OrderTop/g, "Órder Top"],
+        [/⊤/g, "top"],
+        [/σ/g, "sigma"],
+        [/γ/g, "gamma"],
+        [/𝒜/g, "A caligráfica"],
+        [/ℋ/g, "H de Hilbert"],
+        [/Kähler-Einstein/g, "Kéler-Áinstain"],
+        [/Kähler/g, "Kéler"],
+        [/Fubini-Study/g, "Fubíni-Stádi"],
+        [/Bianchi/g, "Biánqui"],
+        [/Hopf/g, "Jópf"],
+        [/Kaluza-Klein/g, "Kalúza-Kláin"],
+        [/étale/g, "etál"],
+        [/Rolf\s+Landauer/g, "Rolf Landáuer"],
+        [/Landauer/g, "Landáuer"],
+        [/Joseph\s+Liouville/g, "Yósef Liuvíl"],
+        [/Liouville/g, "Liuvíl"],
+        [/Joachim\s+Lambek/g, "Yoájim Lámbek"],
+        [/Lambek/g, "Lámbek"],
+        [/Kochen-Specker/g, "Kójen-Spéker"],
+        [/Lawvere/g, "Lóvir"],
+        [/Heyting/g, "Jáiting"],
+        [/Stéphane\s+Lupasco/g, "Estefán Lupásco"],
+        [/Lupasco/g, "Lupásco"],
+        [/Basarab\s+Nicolescu/g, "Basaráb Nicoléscu"],
+        [/Nicolescu/g, "Nicoléscu"],
+        [/Stanisław\s+Łojasiewicz/g, "Estanísuaf Woyashiévich"],
+        [/Krzysztof\s+Kurdyka/g, "Kshíshtof Kurdíka"],
+        [/Kurdyka-Łojasiewicz/g, "Kurdíka-Woyashiévich"],
+        [/Alain\s+Connes/g, "Alén Cón"],
+        [/Connes/g, "Cón"],
+        [/Cauchy/g, "Coshí"],
+        [/Einstein/g, "Áinstain"],
+        [/Planck/g, "Plánk"],
+        [/Big\s+Bang/g, "Big Bang"]
+      ];
+
+      function toPhoneticSpanish(text) {
+        let out = text;
+        for (let i = 0; i < PHONETIC_RULES.length; i++) {
+          out = out.replace(PHONETIC_RULES[i][0], PHONETIC_RULES[i][1]);
+        }
+        return out;
+      }
+
+      // Segmentador rápido sin llamadas a Regex dentro del bucle
+      function splitParagraphFast(paragraphText) {
+        const rawSentences = paragraphText
+          .split(/(?<=[.!?])\s+/)
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const clauses = [];
+
+        for (let i = 0; i < rawSentences.length; i++) {
+          const sentence = rawSentences[i];
+          if (sentence.length <= MAX_VISUAL_CLAUSE_LEN) {
+            clauses.push(sentence);
+            continue;
+          }
+
+          // Subdividir por puntuación media (; : — ,) agrupando hasta MAX_VISUAL_CLAUSE_LEN
+          const subParts = sentence
+            .split(/(?<=[;:\u2014\u2013,])\s+/)
+            .map(p => p.trim())
+            .filter(Boolean);
+
+          let buffer = "";
+          for (let j = 0; j < subParts.length; j++) {
+            const part = subParts[j];
+            if (!buffer) {
+              buffer = part;
+            } else if (buffer.length + 1 + part.length <= MAX_VISUAL_CLAUSE_LEN) {
+              buffer = buffer + " " + part;
+            } else {
+              clauses.push(buffer);
+              buffer = part;
+            }
+          }
+          if (buffer) clauses.push(buffer);
+        }
+
+        return clauses;
+      }
+
+      // Construir lista lineal de cláusulas calibradas a 1,200 s en < 3 ms
+      const ALL_CLAUSES = [];
+      const STRUCTURED_CHAPTERS = [];
+
+      let chapterCursorSec = 0;
+      CHAPTERS_RAW.forEach((chap, cIdx) => {
+        const paraObjects = chap.paragraphs.map((pText, pIdx) => ({
+          paraIndex: pIdx,
+          clauses: splitParagraphFast(pText)
+        }));
+
+        const flatChapClauses = [];
+        paraObjects.forEach(pObj => {
+          pObj.clauses.forEach(cText => {
+            // Se aplica toPhoneticSpanish UNA SOLA VEZ por cláusula ya formada
+            const ttsText = toPhoneticSpanish(cText);
+            flatChapClauses.push({
+              paraIndex: pObj.paraIndex,
+              text: cText,
+              ttsText: ttsText
+            });
+          });
+        });
+
+        const weights = flatChapClauses.map(c => Math.max(18, c.ttsText.length));
+        const totalW = weights.reduce((a, b) => a + b, 0);
+        let localCursor = chapterCursorSec;
+
+        const builtClauses = flatChapClauses.map((item, idxInChap) => {
+          const dur = (weights[idxInChap] / totalW) * chap.durationSec;
+          const clauseRecord = {
+            globalIndex: ALL_CLAUSES.length,
+            chapterIndex: cIdx,
+            paraIndex: item.paraIndex,
+            text: item.text,
+            ttsText: item.ttsText,
+            startSec: localCursor,
+            endSec: localCursor + dur,
+            durationSec: dur
+          };
+          ALL_CLAUSES.push(clauseRecord);
+          localCursor += dur;
+          return clauseRecord;
+        });
+
+        STRUCTURED_CHAPTERS.push({
+          ...chap,
+          startSec: chapterCursorSec,
+          endSec: chapterCursorSec + chap.durationSec,
+          clauses: builtClauses
+        });
+
+        chapterCursorSec += chap.durationSec;
+      });
+
+      /* ========================================================================
+         3. ESTADO GLOBAL DE LA APLICACIÓN Y SALVAGUARDAS DE AUDIO
+         ======================================================================== */
+      window.__rtCurrentUtterance = null;
+
+      const state = {
+        // Motor Hipervolumétrico 4D
+        activeMode: 0,
+        autoSync: true,
+        sliceW: 0.0,
+        rotSpeed: 1.0,
+        lambdaEff: 2.89,
+        camYaw: 0.56,
+        camPitch: 0.34,
+        camZoom: 1.0,
+        angles4D: { xy: 0.2, xz: 0.1, xw: 0.0, yz: 0.15, yw: 0.0, zw: 0.0 },
+        spectralDimLive: 4.0,
+
+        // Motor de Locución Blindado sin Cortes
+        isPlaying: false,
+        isPaused: false,
+        fallbackTimerOnly: false,
+        playbackRate: 1.0,
+        elapsedBaseSec: 0.0,
+        currentClauseIdx: 0,
+        chunkStartedAtPerf: 0,
+        utteranceActiveSincePerf: 0,
+        speechSessionToken: 0,
+        watchdogRecoveries: 0,
+        autoScroll: true,
+        voices: [],
+        selectedVoiceURI: "",
+        wakeLockSentinel: null
+      };
+
+      let speakDelayTimer = null;
+      let chunkWatchdogTimer = null;
+
+      /* ========================================================================
+         4. CONSTRUCCIÓN RÁPIDA DE CAPÍTULOS Y TELEPROMPTER (DOCUMENT FRAGMENT)
+         ======================================================================== */
+      const chaptersBarEl = document.getElementById("chaptersBar");
+      const teleprompterEl = document.getElementById("teleprompterViewport");
+      const chapterCardNodes = [];
+      const clauseSpanNodes = [];
+      const paragraphDivNodes = {};
+
+      function buildUI() {
+        const chapFrag = document.createDocumentFragment();
+        const tpFrag = document.createDocumentFragment();
+
+        STRUCTURED_CHAPTERS.forEach((chap, cIdx) => {
+          const btn = document.createElement("button");
+          btn.className = "chap-card-btn" + (cIdx === 0 ? " active" : "");
+          btn.innerHTML = `
+            <div class="chap-card-meta">
+              <span>CAP. ${chap.num} · M${chap.modeIndex + 1}</span>
+              <span>${chap.timeLabel.split("–")[0]}</span>
+            </div>
+            <div class="chap-card-name">${chap.shortTitle}</div>
+          `;
+          btn.addEventListener("click", () => {
+            if (chap.clauses.length > 0) {
+              jumpToClause(chap.clauses[0].globalIndex, true);
+            }
+          });
+          chapFrag.appendChild(btn);
+          chapterCardNodes.push(btn);
+
+          const section = document.createElement("article");
+          section.className = "tp-chapter-section";
+          section.id = `tp-section-${cIdx}`;
+
+          const banner = document.createElement("div");
+          banner.className = "tp-chapter-banner";
+          banner.innerHTML = `
+            <h3>${chap.fullTitle}</h3>
+            <span>Modo 4D #${chap.modeIndex + 1}</span>
+          `;
+          banner.addEventListener("click", () => {
+            if (chap.clauses.length > 0) {
+              jumpToClause(chap.clauses[0].globalIndex, true);
+            }
+          });
+          section.appendChild(banner);
+
+          const parasMap = new Map();
+          chap.clauses.forEach(cRec => {
+            if (!parasMap.has(cRec.paraIndex)) parasMap.set(cRec.paraIndex, []);
+            parasMap.get(cRec.paraIndex).push(cRec);
+          });
+
+          parasMap.forEach((clausesInPara, pIdx) => {
+            const pDiv = document.createElement("div");
+            pDiv.className = "tp-paragraph" + (cIdx === 0 && pIdx === 0 ? " active-para" : "");
+            paragraphDivNodes[`${cIdx}-${pIdx}`] = pDiv;
+
+            clausesInPara.forEach(cRec => {
+              const span = document.createElement("span");
+              span.className = "tp-clause" + (cRec.globalIndex === 0 ? " active-clause" : "");
+              span.textContent = cRec.text + " ";
+              span.title = `Clic para escuchar desde ${formatMMSS(cRec.startSec)}`;
+              span.addEventListener("click", () => {
+                jumpToClause(cRec.globalIndex, true);
+              });
+              pDiv.appendChild(span);
+              clauseSpanNodes[cRec.globalIndex] = span;
+            });
+
+            section.appendChild(pDiv);
+          });
+
+          tpFrag.appendChild(section);
+        });
+
+        chaptersBarEl.innerHTML = "";
+        teleprompterEl.innerHTML = "";
+        chaptersBarEl.appendChild(chapFrag);
+        teleprompterEl.appendChild(tpFrag);
+
+        document.getElementById("chunkCounter").textContent = `Cláusula 1 / ${ALL_CLAUSES.length}`;
+      }
+
+      /* ========================================================================
+         5. WAKE LOCK API (MANTIENE PANTALLA ACTIVA EN MÓVILES DURANTE LOCUCIÓN)
+         ======================================================================== */
+      async function requestScreenWakeLock() {
+        if (!("wakeLock" in navigator)) return;
+        try {
+          if (state.wakeLockSentinel) return;
+          state.wakeLockSentinel = await navigator.wakeLock.request("screen");
+          document.getElementById("tagWakeLock").textContent = "WAKE: ON";
+          state.wakeLockSentinel.addEventListener("release", () => {
+            state.wakeLockSentinel = null;
+            document.getElementById("tagWakeLock").textContent = "WAKE: OFF";
+          });
+        } catch (_) {
+          document.getElementById("tagWakeLock").textContent = "WAKE: N/A";
+        }
+      }
+
+      async function releaseScreenWakeLock() {
+        if (!state.wakeLockSentinel) return;
+        try {
+          await state.wakeLockSentinel.release();
+        } catch (_) {}
+        state.wakeLockSentinel = null;
+        document.getElementById("tagWakeLock").textContent = "WAKE: OFF";
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && state.isPlaying && !state.isPaused) {
+          requestScreenWakeLock();
+        }
+      });
+
+      /* ========================================================================
+         6. MOTOR DE VOZ DE ARRANQUE INSTANTÁNEO Y SIN INTERRUPCIONES
+            - Prioriza voces locales (localService = true) para 0 ms de latencia
+            - Elimina el pause()/resume() agresivo que cortaba frases a mitad
+            - Reinicia el Watchdog en onstart y verifica speaking antes de saltar
+         ======================================================================== */
+      const hasSpeechSupport =
+        typeof window !== "undefined" &&
+        "speechSynthesis" in window &&
+        typeof SpeechSynthesisUtterance !== "undefined";
+
+      const voiceSelectEl = document.getElementById("voiceSelect");
+      const ttsTelemetryMsgEl = document.getElementById("ttsTelemetryMsg");
+      const shieldLabelEl = document.getElementById("shieldLabel");
+
+      function loadSpanishVoices() {
+        if (!hasSpeechSupport) {
+          state.fallbackTimerOnly = true;
+          voiceSelectEl.innerHTML = `<option value="">Modo Cronómetro Teleprompter (Sin TTS)</option>`;
+          shieldLabelEl.textContent = "Teleprompter Cronometrado";
+          return;
+        }
+
+        const rawVoices = window.speechSynthesis.getVoices() || [];
+        const spanishVoices = rawVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith("es"));
+        state.voices = spanishVoices.length > 0 ? spanishVoices : rawVoices;
+
+        voiceSelectEl.innerHTML = "";
+        if (state.voices.length === 0) {
+          voiceSelectEl.innerHTML = `<option value="">Voz Española del Sistema (Predeterminada)</option>`;
+          return;
+        }
+
+        const priority = ["es-ve", "es-es", "es-mx", "es-ar", "es-co", "es-us", "es"];
+        // Priorizar SIEMPRE voces locales (localService === true) para arranque instantáneo y cero cortes de red
+        state.voices.sort((a, b) => {
+          const localA = a.localService ? 0 : 1;
+          const localB = b.localService ? 0 : 1;
+          if (localA !== localB) return localA - localB;
+
+          const la = (a.lang || "").toLowerCase();
+          const lb = (b.lang || "").toLowerCase();
+          const pa = priority.findIndex(p => la.startsWith(p));
+          const pb = priority.findIndex(p => lb.startsWith(p));
+          return (pa === -1 ? 99 : pa) - (pb === -1 ? 99 : pb);
+        });
+
+        state.voices.forEach((v, i) => {
+          const opt = document.createElement("option");
+          opt.value = v.voiceURI;
+          const tag = v.localService ? "[Local · Instantánea]" : "[Red · Online]";
+          opt.textContent = `${tag} ${v.name} (${v.lang})`;
+          if ((i === 0 && !state.selectedVoiceURI) || v.voiceURI === state.selectedVoiceURI) {
+            state.selectedVoiceURI = v.voiceURI;
+            opt.selected = true;
+          }
+          voiceSelectEl.appendChild(opt);
+        });
+      }
+
+      if (hasSpeechSupport) {
+        loadSpanishVoices();
+        window.speechSynthesis.onvoiceschanged = loadSpanishVoices;
+      } else {
+        loadSpanishVoices();
+      }
+
+      function clearAudioTimers() {
+        if (speakDelayTimer !== null) {
+          clearTimeout(speakDelayTimer);
+          speakDelayTimer = null;
+        }
+        if (chunkWatchdogTimer !== null) {
+          clearTimeout(chunkWatchdogTimer);
+          chunkWatchdogTimer = null;
+        }
+      }
+
+      function armWatchdog(myToken, clauseIdx, timeoutMs) {
+        if (chunkWatchdogTimer !== null) {
+          clearTimeout(chunkWatchdogTimer);
+        }
+        chunkWatchdogTimer = setTimeout(() => {
+          if (myToken !== state.speechSessionToken || !state.isPlaying || state.isPaused) return;
+
+          // Si el sintetizador sigue hablando activamente y no lleva más de 22s colgado, darle margen
+          if (hasSpeechSupport && window.speechSynthesis.speaking) {
+            const activeForMs = performance.now() - state.utteranceActiveSincePerf;
+            if (activeForMs < 22000) {
+              armWatchdog(myToken, clauseIdx, 3500);
+              return;
+            }
+          }
+
+          state.watchdogRecoveries += 1;
+          document.getElementById("tagWatchdog").textContent = `WD: ${state.watchdogRecoveries}`;
+          ttsTelemetryMsgEl.textContent = `Continúa automáticamente en cláusula ${clauseIdx + 2}...`;
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+          enqueueClauseSpeech(clauseIdx + 1, true);
+        }, timeoutMs);
+      }
+
+      function enqueueClauseSpeech(clauseIdx, needsCancelFirst) {
+        if (clauseIdx < 0 || clauseIdx >= ALL_CLAUSES.length) {
+          completeFullLecture();
+          return;
+        }
+
+        clearAudioTimers();
+        state.currentClauseIdx = clauseIdx;
+        const clause = ALL_CLAUSES[clauseIdx];
+        state.elapsedBaseSec = clause.startSec;
+        state.chunkStartedAtPerf = performance.now();
+        state.utteranceActiveSincePerf = performance.now();
+
+        syncTeleprompterAndMode(clause);
+        updateClockAndProgress();
+
+        state.speechSessionToken += 1;
+        const myToken = state.speechSessionToken;
+
+        if (!hasSpeechSupport || state.fallbackTimerOnly) {
+          ttsTelemetryMsgEl.textContent = `Respaldo cronometrado activo · Cap. ${STRUCTURED_CHAPTERS[clause.chapterIndex].num}`;
+          return;
+        }
+
+        const triggerUtterance = () => {
+          if (myToken !== state.speechSessionToken || !state.isPlaying || state.isPaused) {
+            return;
+          }
+
+          try {
+            const utter = new SpeechSynthesisUtterance(clause.ttsText);
+            window.__rtCurrentUtterance = utter;
+
+            utter.lang = "es-ES";
+            // Mantener rate y pitch constantes para no reiniciar el búfer de audio entre cláusulas
+            utter.rate = state.playbackRate;
+            utter.pitch = 1.0;
+
+            if (state.selectedVoiceURI) {
+              const voiceObj = state.voices.find(v => v.voiceURI === state.selectedVoiceURI);
+              if (voiceObj) {
+                utter.voice = voiceObj;
+                utter.lang = voiceObj.lang || "es-ES";
+              }
+            }
+
+            // Tiempo estimado generoso + margen para evitar cortes prematuros
+            const expectedSpeakMs = Math.max(
+              8000,
+              ((clause.ttsText.length / 8.5) * 1000) / Math.max(0.7, state.playbackRate) + 6000
+            );
+
+            // Watchdog inicial por si la voz tarda en arrancar
+            armWatchdog(myToken, clauseIdx, expectedSpeakMs + 4000);
+
+            utter.onstart = () => {
+              if (myToken !== state.speechSessionToken) return;
+              const now = performance.now();
+              state.chunkStartedAtPerf = now;
+              state.utteranceActiveSincePerf = now;
+              // Reiniciar el Watchdog desde el instante real en que comenzó a hablar
+              armWatchdog(myToken, clauseIdx, expectedSpeakMs);
+              shieldLabelEl.textContent = "Audio Continuo 20:00 · ON";
+              ttsTelemetryMsgEl.textContent =
+                `Cap. ${STRUCTURED_CHAPTERS[clause.chapterIndex].num} · Cláusula ${clauseIdx + 1}/${ALL_CLAUSES.length} (${clause.ttsText.length} car. fonéticos)`;
+            };
+
+            utter.onend = () => {
+              if (myToken !== state.speechSessionToken) return;
+              clearAudioTimers();
+              if (!state.isPlaying || state.isPaused) return;
+              // Encadenamiento directo inmediato (0 ms) para fluidez continua sin vacíos
+              enqueueClauseSpeech(clauseIdx + 1, false);
+            };
+
+            utter.onerror = (ev) => {
+              if (myToken !== state.speechSessionToken) return;
+              clearAudioTimers();
+              if (!state.isPlaying || state.isPaused) return;
+              if (ev && (ev.error === "canceled" || ev.error === "interrupted")) {
+                return;
+              }
+              state.watchdogRecoveries += 1;
+              document.getElementById("tagWatchdog").textContent = `WD: ${state.watchdogRecoveries}`;
+              ttsTelemetryMsgEl.textContent = `Reanudación automática tras evento TTS (${ev ? ev.error : "ok"})...`;
+              enqueueClauseSpeech(clauseIdx + 1, true);
+            };
+
+            window.speechSynthesis.speak(utter);
+          } catch (_) {
+            state.fallbackTimerOnly = true;
+            ttsTelemetryMsgEl.textContent = "Modo teleprompter cronometrado continuo activado.";
+          }
+        };
+
+        // Solo llamar cancel() si el motor estaba hablando antes (cambio manual de capítulo/voz)
+        if (needsCancelFirst && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+          speakDelayTimer = setTimeout(triggerUtterance, 45);
+        } else {
+          // Arranque síncrono en 0 ms al pulsar Play por primera vez
+          triggerUtterance();
+        }
+      }
+
+      // Keep-alive no intrusivo: SOLO actúa si una misma cláusula lleva más de 13.5 s hablando sin terminar
+      setInterval(() => {
+        if (!hasSpeechSupport || !state.isPlaying || state.isPaused || state.fallbackTimerOnly) {
+          return;
+        }
+        try {
+          if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+            const activeMs = performance.now() - state.utteranceActiveSincePerf;
+            if (activeMs > 13500) {
+              state.utteranceActiveSincePerf = performance.now();
+              window.speechSynthesis.pause();
+              window.speechSynthesis.resume();
+            }
+          }
+        } catch (_) {}
+      }, 2000);
+
+      function startOrResumeLecture() {
+        if (state.isPlaying && state.isPaused) {
+          state.isPaused = false;
+          state.chunkStartedAtPerf = performance.now();
+          state.utteranceActiveSincePerf = performance.now();
+          updatePlayPauseButton();
+          requestScreenWakeLock();
+
+          if (hasSpeechSupport && !state.fallbackTimerOnly) {
+            try {
+              if (window.speechSynthesis.paused) {
+                window.speechSynthesis.resume();
+                setTimeout(() => {
+                  if (state.isPlaying && !state.isPaused && !window.speechSynthesis.speaking) {
+                    enqueueClauseSpeech(state.currentClauseIdx, false);
+                  }
+                }, 100);
+                return;
+              }
+            } catch (_) {}
+          }
+          enqueueClauseSpeech(state.currentClauseIdx, false);
+          return;
+        }
+
+        if (state.elapsedBaseSec >= TOTAL_DURATION_SEC - 0.5) {
+          state.elapsedBaseSec = 0;
+          state.currentClauseIdx = 0;
+        }
+
+        state.isPlaying = true;
+        state.isPaused = false;
+        updatePlayPauseButton();
+        requestScreenWakeLock();
+        // Arranque inmediato sin cancel() innecesario cuando la cola está limpia
+        enqueueClauseSpeech(state.currentClauseIdx, false);
+      }
+
+      function pauseLecture() {
+        if (!state.isPlaying || state.isPaused) return;
+        state.isPaused = true;
+        clearAudioTimers();
+        updatePlayPauseButton();
+        releaseScreenWakeLock();
+        shieldLabelEl.textContent = "Audio Blindado · En Pausa";
+        ttsTelemetryMsgEl.textContent = "Locución en pausa. Pulse Reanudar para continuar.";
+
+        if (hasSpeechSupport && !state.fallbackTimerOnly) {
+          try {
+            window.speechSynthesis.pause();
+          } catch (_) {}
+        }
+      }
+
+      function restartLecture(autoPlay) {
+        state.speechSessionToken += 1;
+        clearAudioTimers();
+        if (hasSpeechSupport) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+        state.elapsedBaseSec = 0;
+        state.currentClauseIdx = 0;
+        state.isPaused = false;
+        syncTeleprompterAndMode(ALL_CLAUSES[0]);
+        updateClockAndProgress();
+
+        if (autoPlay) {
+          state.isPlaying = true;
+          updatePlayPauseButton();
+          requestScreenWakeLock();
+          enqueueClauseSpeech(0, true);
+        } else {
+          state.isPlaying = false;
+          updatePlayPauseButton();
+          releaseScreenWakeLock();
+        }
+      }
+
+      function completeFullLecture() {
+        state.speechSessionToken += 1;
+        clearAudioTimers();
+        state.isPlaying = false;
+        state.isPaused = false;
+        state.elapsedBaseSec = TOTAL_DURATION_SEC;
+        updateClockAndProgress();
+        updatePlayPauseButton();
+        releaseScreenWakeLock();
+        shieldLabelEl.textContent = "Conferencia Completada (20:00)";
+        ttsTelemetryMsgEl.textContent = "Exposición magistral de 20 minutos finalizada sin interrupciones (ΔS = 0.0000).";
+      }
+
+      function jumpToClause(clauseIdx, forcePlay) {
+        const clamped = Math.max(0, Math.min(ALL_CLAUSES.length - 1, clauseIdx));
+        const target = ALL_CLAUSES[clamped];
+        state.currentClauseIdx = clamped;
+        state.elapsedBaseSec = target.startSec;
+        state.chunkStartedAtPerf = performance.now();
+        syncTeleprompterAndMode(target);
+        updateClockAndProgress();
+
+        if (forcePlay || (state.isPlaying && !state.isPaused)) {
+          state.isPlaying = true;
+          state.isPaused = false;
+          updatePlayPauseButton();
+          requestScreenWakeLock();
+          enqueueClauseSpeech(clamped, true);
+        }
+      }
+
+      function updatePlayPauseButton() {
+        const btn = document.getElementById("btnPlayPause");
+        if (state.isPlaying && !state.isPaused) {
+          btn.textContent = "⏸ Pausar Locución";
+          btn.classList.remove("primary");
+          btn.classList.add("paused-state");
+        } else if (state.isPlaying && state.isPaused) {
+          btn.textContent = "▶ Reanudar Locución";
+          btn.classList.remove("paused-state");
+          btn.classList.add("primary");
+        } else {
+          btn.textContent = "▶ Iniciar Locución (20:00)";
+          btn.classList.remove("paused-state");
+          btn.classList.add("primary");
+        }
+      }
+
+      function syncTeleprompterAndMode(clause) {
+        const chap = STRUCTURED_CHAPTERS[clause.chapterIndex];
+        document.getElementById("activeChapterBanner").textContent =
+          `Cap. ${chap.num} (${chap.timeLabel}) · ${chap.shortTitle}`;
+        document.getElementById("chunkCounter").textContent =
+          `Cláusula ${clause.globalIndex + 1} / ${ALL_CLAUSES.length}`;
+
+        chapterCardNodes.forEach((node, i) => {
+          node.classList.toggle("active", i === clause.chapterIndex);
+        });
+
+        Object.keys(paragraphDivNodes).forEach(key => {
+          paragraphDivNodes[key].classList.toggle(
+            "active-para",
+            key === `${clause.chapterIndex}-${clause.paraIndex}`
+          );
+        });
+
+        clauseSpanNodes.forEach((span, i) => {
+          if (!span) return;
+          span.classList.toggle("active-clause", i === clause.globalIndex);
+          span.classList.toggle("spoken", i < clause.globalIndex);
+        });
+
+        if (state.autoScroll && clauseSpanNodes[clause.globalIndex]) {
+          const activeEl = clauseSpanNodes[clause.globalIndex];
+          const targetTop = activeEl.offsetTop - teleprompterEl.clientHeight * 0.35;
+          teleprompterEl.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
+        }
+
+        if (state.autoSync && state.activeMode !== chap.modeIndex) {
+          setHyperMode(chap.modeIndex, false);
+        }
+      }
+
+      function formatMMSS(sec) {
+        const clamped = Math.max(0, Math.min(TOTAL_DURATION_SEC, Math.floor(sec)));
+        const m = String(Math.floor(clamped / 60)).padStart(2, "0");
+        const s = String(clamped % 60).padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      function updateClockAndProgress() {
+        const pct = Math.max(0, Math.min(100, (state.elapsedBaseSec / TOTAL_DURATION_SEC) * 100));
+        document.getElementById("progressFill").style.width = `${pct.toFixed(2)}%`;
+        document.getElementById("masterClockDisplay").textContent = `${formatMMSS(state.elapsedBaseSec)} / 20:00`;
+        document.getElementById("progressTrack").setAttribute("aria-valuenow", Math.round(state.elapsedBaseSec));
+      }
+
+      // Reloj continuo de interpolación temporal (100 ms)
+      setInterval(() => {
+        if (!state.isPlaying || state.isPaused) return;
+        const clause = ALL_CLAUSES[state.currentClauseIdx];
+        if (!clause) return;
+
+        const now = performance.now();
+        const elapsedInChunk = ((now - state.chunkStartedAtPerf) / 1000) * state.playbackRate;
+
+        if (state.fallbackTimerOnly) {
+          state.elapsedBaseSec = clause.startSec + elapsedInChunk;
+          if (state.elapsedBaseSec >= TOTAL_DURATION_SEC) {
+            completeFullLecture();
+            return;
+          }
+          if (state.elapsedBaseSec >= clause.endSec) {
+            enqueueClauseSpeech(state.currentClauseIdx + 1, false);
+            return;
+          }
+        } else {
+          const smoothPos = clause.startSec + elapsedInChunk;
+          state.elapsedBaseSec = Math.min(clause.endSec - 0.08, Math.max(clause.startSec, smoothPos));
+        }
+
+        updateClockAndProgress();
+      }, 100);
+
+      // Eventos de UI de Audio
+      document.getElementById("btnPlayPause").addEventListener("click", () => {
+        if (state.isPlaying && !state.isPaused) {
+          pauseLecture();
+        } else {
+          startOrResumeLecture();
+        }
+      });
+
+      document.getElementById("btnRestart").addEventListener("click", () => {
+        restartLecture(true);
+      });
+
+      document.getElementById("progressTrack").addEventListener("click", (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        const targetSec = ratio * TOTAL_DURATION_SEC;
+        const idx = ALL_CLAUSES.findIndex(c => targetSec >= c.startSec && targetSec <= c.endSec);
+        jumpToClause(idx === -1 ? ALL_CLAUSES.length - 1 : idx, false);
+      });
+
+      voiceSelectEl.addEventListener("change", () => {
+        state.selectedVoiceURI = voiceSelectEl.value;
+        if (state.isPlaying && !state.isPaused && !state.fallbackTimerOnly) {
+          enqueueClauseSpeech(state.currentClauseIdx, true);
+        }
+      });
+
+      document.querySelectorAll(".rate-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".rate-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          state.playbackRate = parseFloat(btn.dataset.rate) || 1.0;
+          if (state.isPlaying && !state.isPaused && !state.fallbackTimerOnly) {
+            enqueueClauseSpeech(state.currentClauseIdx, true);
+          }
+        });
+      });
+
+      document.getElementById("btnAutoScroll").addEventListener("click", (e) => {
+        state.autoScroll = !state.autoScroll;
+        e.currentTarget.textContent = `↕ Auto-Scroll: ${state.autoScroll ? "ON" : "OFF"}`;
+        e.currentTarget.classList.toggle("on", state.autoScroll);
+      });
+
+      document.getElementById("btnAutoSync").addEventListener("click", (e) => {
+        state.autoSync = !state.autoSync;
+        e.currentTarget.textContent = `⟳ Sync 4D: ${state.autoSync ? "ON" : "OFF"}`;
+        e.currentTarget.classList.toggle("on", state.autoSync);
+      });
+
+      /* ========================================================================
+         7. MOTOR GRÁFICO HIPERVOLUMÉTRICO 4D (HTML5 CANVAS 2D A 60 FPS)
+         ======================================================================== */
+      const canvas = document.getElementById("hyperCanvas");
+      const ctx = canvas.getContext("2d");
+      let canvasW = 800;
+      let canvasH = 500;
+
+      function resizeCanvas() {
+        const stage = document.getElementById("canvasStage");
+        const rect = stage.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvasW = Math.max(280, rect.width);
+        canvasH = Math.max(280, rect.height);
+        canvas.width = Math.floor(canvasW * dpr);
+        canvas.height = Math.floor(canvasH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+
+      const MODE_SPECS = [
+        {
+          hudTitle: "MODO 1: HIPERVOLUMEN ℂ² ≅ ℝ⁴, GIROIDE MINIMAL Y ker(d ev)",
+          formula: "𝒯<sub>𝒜</sub> : {0,1}<sup>n</sup> → ker(d ev) ⊂ ℂℙ<sup>∞</sup> &nbsp;|&nbsp; K<sub>0</sub>(u) = ln(1 + u)",
+          nodesLabel: "24 (ℂ² + Giroide)",
+          dsLabel: "D_S = 4.00"
+        },
+        {
+          hudTitle: "MODO 2: 12 NODOS RESONANTES, FIBRACIÓN DE HOPF Y ABRAXAS (c = 12)",
+          formula: "S¹ ↪ S³ → S² &nbsp;|&nbsp; Λ<sub>eff</sub>(K<sub>0</sub>(1)) = 2 / ln 2 &nbsp;|&nbsp; N = 365",
+          nodesLabel: "12 + 1 (Abraxas)",
+          dsLabel: "D_S = 2.00"
+        },
+        {
+          hudTitle: "MODO 3: FIBRADO COTANGENTE T*M Y FLUJO SIMPLÉCTICO (ΔS = 0)",
+          formula: "div<sub>T*M</sub> = −Δ<sub>g</sub>Φ + Δ<sub>g</sub>Φ = 0 &nbsp;|&nbsp; I ≅ G(I) · Mem O(1)",
+          nodesLabel: "24 (Toro T*M)",
+          dsLabel: "D_S = 4.00"
+        },
+        {
+          hudTitle: "MODO 4: MORFOGÉNESIS ESPECTRAL D_S(σ) : 0 → 2 (UV) → 4 (IR)",
+          formula: "D<sub>S</sub>(σ) = −2 d ln Tr(e<sup>−σΔ<sub>α</sub></sup>) / d ln σ &nbsp;|&nbsp; d<sub>KO</sub> = 10",
+          nodesLabel: "16 Transfinitos",
+          dsLabel: "D_S = 2.00"
+        }
+      ];
+
+      function setHyperMode(modeIdx, disableAutoSync) {
+        state.activeMode = modeIdx;
+        if (disableAutoSync && state.autoSync) {
+          state.autoSync = false;
+          const btn = document.getElementById("btnAutoSync");
+          btn.textContent = "⟳ Sync 4D: OFF";
+          btn.classList.remove("on");
+        }
+
+        document.querySelectorAll(".mode-btn").forEach((b, i) => {
+          const active = i === modeIdx;
+          b.classList.toggle("active", active);
+          b.setAttribute("aria-selected", active ? "true" : "false");
+        });
+
+        const spec = MODE_SPECS[modeIdx];
+        document.getElementById("hudModeLabel").textContent = spec.hudTitle;
+        document.getElementById("hudFormula").innerHTML = spec.formula;
+        document.getElementById("hudNodes").textContent = spec.nodesLabel;
+        document.getElementById("hudDs").textContent = spec.dsLabel;
+      }
+
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setHyperMode(parseInt(btn.dataset.mode, 10), true);
+        });
+      });
+
+      document.getElementById("sliderSliceW").addEventListener("input", (e) => {
+        state.sliceW = parseFloat(e.target.value);
+        const sign = state.sliceW >= 0 ? "+" : "";
+        const formatted = `${sign}${state.sliceW.toFixed(2)}`;
+        document.getElementById("valSliceW").textContent = formatted;
+        document.getElementById("hudW").textContent = formatted;
+      });
+
+      document.getElementById("sliderRotSpeed").addEventListener("input", (e) => {
+        state.rotSpeed = parseFloat(e.target.value);
+        document.getElementById("valRotSpeed").textContent = `${state.rotSpeed.toFixed(2)}×`;
+      });
+
+      document.getElementById("sliderLambda").addEventListener("input", (e) => {
+        state.lambdaEff = parseFloat(e.target.value);
+        document.getElementById("valLambda").textContent = state.lambdaEff.toFixed(2);
+      });
+
+      let draggingCam = false;
+      let prevPtrX = 0;
+      let prevPtrY = 0;
+
+      canvas.addEventListener("pointerdown", (e) => {
+        draggingCam = true;
+        prevPtrX = e.clientX;
+        prevPtrY = e.clientY;
+        canvas.setPointerCapture(e.pointerId);
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (!draggingCam) return;
+        const dx = e.clientX - prevPtrX;
+        const dy = e.clientY - prevPtrY;
+        prevPtrX = e.clientX;
+        prevPtrY = e.clientY;
+        state.camYaw += dx * 0.008;
+        state.camPitch = Math.max(-1.35, Math.min(1.35, state.camPitch + dy * 0.008));
+      });
+
+      canvas.addEventListener("pointerup", (e) => {
+        draggingCam = false;
+        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+      });
+
+      canvas.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const factor = e.deltaY > 0 ? 0.92 : 1.08;
+        state.camZoom = Math.max(0.45, Math.min(2.4, state.camZoom * factor));
+      }, { passive: false });
+
+      document.getElementById("btnZoomIn").addEventListener("click", () => {
+        state.camZoom = Math.min(2.4, state.camZoom * 1.15);
+      });
+      document.getElementById("btnZoomOut").addEventListener("click", () => {
+        state.camZoom = Math.max(0.45, state.camZoom * 0.87);
+      });
+      document.getElementById("btnResetCam").addEventListener("click", () => {
+        state.camYaw = 0.56;
+        state.camPitch = 0.34;
+        state.camZoom = 1.0;
+        state.sliceW = 0.0;
+        document.getElementById("sliderSliceW").value = "0.00";
+        document.getElementById("valSliceW").textContent = "+0.00";
+        document.getElementById("hudW").textContent = "+0.00";
+      });
+
+      /* ========================================================================
+         8. PRIMAS GEOMÉTRICAS 4D, GIROIDE Y PROYECCIÓN ESTEREOGRÁFICA
+         ======================================================================== */
+      const TESSERACT_VERTS = [];
+      for (let i = 0; i < 16; i++) {
+        TESSERACT_VERTS.push([
+          (i & 1) ? 1 : -1,
+          (i & 2) ? 1 : -1,
+          (i & 4) ? 1 : -1,
+          (i & 8) ? 1 : -1
+        ]);
+      }
+
+      const TESSERACT_EDGES = [];
+      for (let i = 0; i < 16; i++) {
+        for (let b = 0; b < 4; b++) {
+          const j = i ^ (1 << b);
+          if (i < j) TESSERACT_EDGES.push([i, j]);
+        }
+      }
+
+      const PHASE_PARTICLES = Array.from({ length: 130 }, (_, i) => {
+        const u = (i / 130) * Math.PI * 2;
+        const v = ((i * 11) % 130) / 130 * Math.PI * 2;
+        const rad = 0.52 + ((i * 17) % 100) / 105;
+        return {
+          base: [
+            rad * Math.cos(u) * Math.sin(v),
+            rad * Math.sin(u) * Math.sin(v),
+            rad * Math.cos(v),
+            rad * Math.sin(u + v) * 0.88
+          ],
+          phase: u
+        };
+      });
+
+      function rotate4D(v, a) {
+        let [x, y, z, w] = v;
+        let c, s, t1, t2;
+
+        c = Math.cos(a.xw); s = Math.sin(a.xw);
+        t1 = x * c - w * s; t2 = x * s + w * c; x = t1; w = t2;
+
+        c = Math.cos(a.zw); s = Math.sin(a.zw);
+        t1 = z * c - w * s; t2 = z * s + w * c; z = t1; w = t2;
+
+        c = Math.cos(a.yw); s = Math.sin(a.yw);
+        t1 = y * c - w * s; t2 = y * s + w * c; y = t1; w = t2;
+
+        c = Math.cos(a.xy); s = Math.sin(a.xy);
+        t1 = x * c - y * s; t2 = x * s + y * c; x = t1; y = t2;
+
+        c = Math.cos(a.yz); s = Math.sin(a.yz);
+        t1 = y * c - z * s; t2 = y * s + z * c; y = t1; z = t2;
+
+        return [x, y, z, w];
+      }
+
+      function project4Dto2D(v4) {
+        const [x, y, z, w] = v4;
+        const stereoDist = 3.25;
+        const denom = Math.max(0.55, stereoDist - w);
+        const f4 = stereoDist / denom;
+
+        const x3 = x * f4;
+        const y3 = y * f4;
+        const z3 = z * f4;
+
+        const cy = Math.cos(state.camYaw), sy = Math.sin(state.camYaw);
+        const rx = x3 * cy - z3 * sy;
+        const rz1 = x3 * sy + z3 * cy;
+
+        const cp = Math.cos(state.camPitch), sp = Math.sin(state.camPitch);
+        const ry = y3 * cp - rz1 * sp;
+        const rz = y3 * sp + rz1 * cp;
+
+        const fov = Math.min(canvasW, canvasH) * 0.42 * state.camZoom;
+        const camDist = 5.4;
+        const persp = fov / Math.max(1.2, camDist + rz);
+
+        return {
+          sx: canvasW * 0.5 + rx * persp,
+          sy: canvasH * 0.52 - ry * persp,
+          w: w,
+          scale: persp / 65
+        };
+      }
+
+      function computeHyperplaneSlice(rotVerts, edges, sliceW) {
+        const hits = [];
+        for (let i = 0; i < edges.length; i++) {
+          const a = rotVerts[edges[i][0]];
+          const b = rotVerts[edges[i][1]];
+          const da = a[3] - sliceW;
+          const db = b[3] - sliceW;
+          if ((da <= 0 && db >= 0) || (da >= 0 && db <= 0)) {
+            const span = b[3] - a[3];
+            const t = Math.abs(span) < 1e-6 ? 0.5 : (sliceW - a[3]) / span;
+            const v4 = [
+              a[0] + t * (b[0] - a[0]),
+              a[1] + t * (b[1] - a[1]),
+              a[2] + t * (b[2] - a[2]),
+              sliceW
+            ];
+            hits.push({ v4, p2: project4Dto2D(v4) });
+          }
+        }
+        return hits;
+      }
+
+      function renderSliceOverlay(slicePts) {
+        if (slicePts.length === 0) return;
+
+        ctx.lineWidth = 1.45;
+        for (let i = 0; i < slicePts.length; i++) {
+          for (let j = i + 1; j < slicePts.length; j++) {
+            const va = slicePts[i].v4;
+            const vb = slicePts[j].v4;
+            const d2 =
+              (va[0] - vb[0]) ** 2 +
+              (va[1] - vb[1]) ** 2 +
+              (va[2] - vb[2]) ** 2;
+            if (d2 < 2.65) {
+              ctx.strokeStyle = "rgba(168, 85, 247, 0.56)";
+              ctx.beginPath();
+              ctx.moveTo(slicePts[i].p2.sx, slicePts[i].p2.sy);
+              ctx.lineTo(slicePts[j].p2.sx, slicePts[j].p2.sy);
+              ctx.stroke();
+            }
+          }
+        }
+
+        slicePts.forEach(pt => {
+          const r = Math.max(2.6, 4.4 * pt.p2.scale);
+          ctx.fillStyle = "#a855f7";
+          ctx.beginPath();
+          ctx.arc(pt.p2.sx, pt.p2.sy, r, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.55)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(pt.p2.sx, pt.p2.sy, r * 2.05, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+      }
+
+      function renderAmbientField(timeSec) {
+        const cx = canvasW * 0.5;
+        const cy = canvasH * 0.52;
+        const maxR = Math.min(canvasW, canvasH) * 0.44 * state.camZoom;
+
+        for (let k = 1; k <= 3; k++) {
+          ctx.strokeStyle = `rgba(30, 58, 138, ${0.26 - k * 0.05})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(cx, cy, (maxR * k) / 3, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        PHASE_PARTICLES.forEach((pt, idx) => {
+          const breath = 1 + 0.08 * Math.sin(timeSec * 1.7 + pt.phase * state.lambdaEff);
+          const rv = rotate4D([
+            pt.base[0] * breath,
+            pt.base[1] * breath,
+            pt.base[2] * breath,
+            pt.base[3]
+          ], state.angles4D);
+          const p2 = project4Dto2D(rv);
+          const onSlice = Math.abs(rv[3] - state.sliceW) < 0.22;
+
+          ctx.fillStyle = onSlice
+            ? "rgba(168, 85, 247, 0.72)"
+            : idx % 3 === 0
+              ? "rgba(245, 158, 11, 0.28)"
+              : "rgba(56, 189, 248, 0.3)";
+          ctx.beginPath();
+          ctx.arc(p2.sx, p2.sy, onSlice ? 2.4 : 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      function renderMode1_HypervolumeGyroid(timeSec) {
+        const rotVerts = TESSERACT_VERTS.map(v => rotate4D(v, state.angles4D));
+        const projVerts = rotVerts.map(v => project4Dto2D(v));
+
+        TESSERACT_EDGES.forEach(([i, j]) => {
+          const pA = projVerts[i];
+          const pB = projVerts[j];
+          const avgW = (pA.w + pB.w) * 0.5;
+          const alpha = Math.max(0.24, Math.min(0.92, 0.56 + avgW * 0.25));
+          ctx.strokeStyle = avgW > 0
+            ? `rgba(56, 189, 248, ${alpha.toFixed(2)})`
+            : `rgba(59, 130, 246, ${(alpha * 0.72).toFixed(2)})`;
+          ctx.lineWidth = avgW > 0 ? 1.8 : 1.15;
+          ctx.beginPath();
+          ctx.moveTo(pA.sx, pA.sy);
+          ctx.lineTo(pB.sx, pB.sy);
+          ctx.stroke();
+        });
+
+        const gyroidSteps = 26;
+        for (let strand = 0; strand < 3; strand++) {
+          ctx.strokeStyle = strand === 1
+            ? "rgba(245, 158, 11, 0.38)"
+            : "rgba(168, 85, 247, 0.32)";
+          ctx.lineWidth = 1.25;
+          ctx.beginPath();
+          for (let s = 0; s <= gyroidSteps; s++) {
+            const t = (s / gyroidSteps) * Math.PI * 2;
+            const shift = (strand * Math.PI * 2) / 3 + timeSec * 0.4;
+            const gx = 0.68 * Math.sin(t + shift);
+            const gy = 0.68 * Math.sin(t * 2 + shift);
+            const gz = 0.68 * Math.cos(t - shift);
+            const gw = 0.48 * (Math.sin(gx * 2) * Math.cos(gy * 2) + Math.sin(gy * 2) * Math.cos(gz * 2));
+            const p2 = project4Dto2D(rotate4D([gx, gy, gz, gw], state.angles4D));
+            if (s === 0) ctx.moveTo(p2.sx, p2.sy);
+            else ctx.lineTo(p2.sx, p2.sy);
+          }
+          ctx.stroke();
+        }
+
+        renderSliceOverlay(computeHyperplaneSlice(rotVerts, TESSERACT_EDGES, state.sliceW));
+
+        const planeY = canvasH * 0.84;
+        const spanW = Math.min(canvasW * 0.76, 520);
+        const startX = (canvasW - spanW) * 0.5;
+
+        const grad = ctx.createLinearGradient(startX, planeY, startX + spanW, planeY);
+        grad.addColorStop(0, "rgba(245, 158, 11, 0.05)");
+        grad.addColorStop(0.5, "rgba(245, 158, 11, 0.88)");
+        grad.addColorStop(1, "rgba(245, 158, 11, 0.05)");
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(startX, planeY);
+        ctx.lineTo(startX + spanW, planeY);
+        ctx.stroke();
+
+        projVerts.forEach((p, idx) => {
+          const r = Math.max(2.5, 4.2 * p.scale);
+          ctx.fillStyle = p.w > 0 ? "#38bdf8" : "#60a5fa";
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (idx % 2 === 0) {
+            const tx = startX + (idx / 15) * spanW;
+            ctx.strokeStyle = "rgba(245, 158, 11, 0.16)";
+            ctx.setLineDash([3, 4]);
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(p.sx, p.sy);
+            ctx.lineTo(tx, planeY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = "#f59e0b";
+            ctx.beginPath();
+            ctx.arc(tx, planeY, 2.8, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+
+        const runnerX = startX + ((timeSec * 0.28) % 1) * spanW;
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(runnerX, planeY, 3.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function renderMode2_HopfAbraxas(timeSec) {
+        const nodeCount = 12;
+        const nodes4D = [];
+        const nodes2D = [];
+
+        const fibers = 10;
+        for (let f = 0; f < fibers; f++) {
+          const eta = (f / fibers) * (Math.PI * 0.45) + 0.25;
+          const phi0 = (f / fibers) * Math.PI * 2;
+          ctx.strokeStyle = f % 2 === 0
+            ? "rgba(56, 189, 248, 0.25)"
+            : "rgba(168, 85, 247, 0.22)";
+          ctx.lineWidth = 1.1;
+          ctx.beginPath();
+          for (let s = 0; s <= 44; s++) {
+            const xi = (s / 44) * Math.PI * 2;
+            const v4 = [
+              Math.cos(xi + phi0) * Math.sin(eta) * 1.35,
+              Math.sin(xi + phi0) * Math.sin(eta) * 1.35,
+              Math.cos(xi - phi0) * Math.cos(eta) * 1.35,
+              Math.sin(xi - phi0) * Math.cos(eta) * 1.35
+            ];
+            const p2 = project4Dto2D(rotate4D(v4, state.angles4D));
+            if (s === 0) ctx.moveTo(p2.sx, p2.sy);
+            else ctx.lineTo(p2.sx, p2.sy);
+          }
+          ctx.stroke();
+        }
+
+        for (let k = 0; k < nodeCount; k++) {
+          const theta = (k / nodeCount) * Math.PI * 2;
+          const ripple = 0.08 * Math.sin(timeSec * state.lambdaEff + k * 1.047);
+          const v4 = [
+            (1.28 + ripple) * Math.cos(theta),
+            (1.28 + ripple) * Math.sin(theta),
+            0.35 * Math.sin(2 * theta + timeSec * 0.6),
+            0.46 * Math.cos(3 * theta - timeSec * 0.5)
+          ];
+          const rv = rotate4D(v4, state.angles4D);
+          nodes4D.push(rv);
+          nodes2D.push(project4Dto2D(rv));
+        }
+
+        const edges = [];
+        for (let i = 0; i < nodeCount; i++) {
+          const j1 = (i + 1) % nodeCount;
+          const j5 = (i + 5) % nodeCount;
+          edges.push([i, j1], [i, j5]);
+
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.74)";
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          ctx.moveTo(nodes2D[i].sx, nodes2D[i].sy);
+          ctx.lineTo(nodes2D[j1].sx, nodes2D[j1].sy);
+          ctx.stroke();
+
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.34)";
+          ctx.lineWidth = 1.1;
+          ctx.beginPath();
+          ctx.moveTo(nodes2D[i].sx, nodes2D[i].sy);
+          ctx.lineTo(nodes2D[j5].sx, nodes2D[j5].sy);
+          ctx.stroke();
+        }
+
+        renderSliceOverlay(computeHyperplaneSlice(nodes4D, edges, state.sliceW));
+
+        nodes2D.forEach((p, idx) => {
+          const pulse = 1 + 0.26 * Math.sin(timeSec * 3.0 + idx * 0.52);
+          const coreR = Math.max(3.6, 5.4 * p.scale);
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.36)";
+          ctx.lineWidth = 1.1;
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, coreR * 2.1 * pulse, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = "#f59e0b";
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, coreR, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, coreR * 0.42, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        const center2D = project4Dto2D(rotate4D([0, 0, 0, 0], state.angles4D));
+        const waveR = ((timeSec * 0.6) % 1) * 46 * state.camZoom;
+        ctx.strokeStyle = `rgba(245, 158, 11, ${(1 - (timeSec * 0.6) % 1) * 0.65})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(center2D.sx, center2D.sy, waveR, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = "#38bdf8";
+        ctx.beginPath();
+        ctx.arc(center2D.sx, center2D.sy, 6.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function renderMode3_CotangentTorus(timeSec) {
+        const uSteps = 28;
+        const vSteps = 18;
+        const delta = 0.22 * Math.sin(timeSec * 1.6);
+        const rM = 1.05 - delta;
+        const rFiber = 1.05 + delta;
+
+        for (let i = 0; i < uSteps; i++) {
+          const u = (i / uSteps) * Math.PI * 2 + timeSec * 0.35;
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+          ctx.lineWidth = 1.15;
+          ctx.beginPath();
+          for (let j = 0; j <= vSteps; j++) {
+            const v = (j / vSteps) * Math.PI * 2 - timeSec * 0.35;
+            const p2 = project4Dto2D(rotate4D([
+              rM * Math.cos(u),
+              rM * Math.sin(u),
+              rFiber * Math.cos(v),
+              rFiber * Math.sin(v)
+            ], state.angles4D));
+            if (j === 0) ctx.moveTo(p2.sx, p2.sy);
+            else ctx.lineTo(p2.sx, p2.sy);
+          }
+          ctx.stroke();
+        }
+
+        const slicePts = [];
+        for (let j = 0; j < vSteps; j++) {
+          const v = (j / vSteps) * Math.PI * 2 - timeSec * 0.35;
+          ctx.strokeStyle = "rgba(245, 158, 11, 0.44)";
+          ctx.lineWidth = 1.35;
+          ctx.beginPath();
+          let prevV4 = null;
+          for (let i = 0; i <= uSteps; i++) {
+            const u = (i / uSteps) * Math.PI * 2 + timeSec * 0.35;
+            const v4 = rotate4D([
+              rM * Math.cos(u),
+              rM * Math.sin(u),
+              rFiber * Math.cos(v),
+              rFiber * Math.sin(v)
+            ], state.angles4D);
+            const p2 = project4Dto2D(v4);
+            if (i === 0) ctx.moveTo(p2.sx, p2.sy);
+            else ctx.lineTo(p2.sx, p2.sy);
+
+            if (prevV4) {
+              const da = prevV4[3] - state.sliceW;
+              const db = v4[3] - state.sliceW;
+              if ((da <= 0 && db >= 0) || (da >= 0 && db <= 0)) {
+                slicePts.push({ v4, p2 });
+              }
+            }
+            prevV4 = v4;
+          }
+          ctx.stroke();
+        }
+
+        renderSliceOverlay(slicePts);
+
+        for (let k = 0; k < 24; k++) {
+          const ph = (k / 24) * Math.PI * 2;
+          const u = ph + timeSec * 0.9;
+          const v = -ph * 2 - timeSec * 0.9;
+          const p2 = project4Dto2D(rotate4D([
+            rM * Math.cos(u),
+            rM * Math.sin(u),
+            rFiber * Math.cos(v),
+            rFiber * Math.sin(v)
+          ], state.angles4D));
+          ctx.fillStyle = k % 2 === 0 ? "#f59e0b" : "#38bdf8";
+          ctx.beginPath();
+          ctx.arc(p2.sx, p2.sy, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function renderMode4_SpectralMorphogenesis(timeSec) {
+        const cycle = 0.5 - 0.5 * Math.cos(timeSec * 0.42);
+        let dsVal = 0;
+        if (cycle < 0.35) {
+          dsVal = (cycle / 0.35) * 2.0;
+        } else if (cycle < 0.65) {
+          dsVal = 2.0 + 0.06 * Math.sin((cycle - 0.35) * 20);
+        } else {
+          dsVal = 2.0 + ((cycle - 0.65) / 0.35) * 2.0;
+        }
+        state.spectralDimLive = dsVal;
+
+        const stage01 = Math.min(1, cycle / 0.45);
+        const stage23 = Math.max(0, (cycle - 0.45) / 0.55);
+
+        const morphVerts = TESSERACT_VERTS.map((v, idx) => {
+          const p0 = [v[0] * 0.16, v[1] * 0.16, 0, 0];
+          const p2 = [v[0] * 1.05, v[1] * 1.05, 0.12 * Math.sin(idx + timeSec), 0];
+          const p4 = [v[0] * 1.05, v[1] * 1.05, v[2] * 1.05, v[3] * 1.05];
+
+          const interp = cycle < 0.45
+            ? p0.map((c, d) => c + (p2[d] - c) * stage01)
+            : p2.map((c, d) => c + (p4[d] - c) * stage23);
+          return rotate4D(interp, state.angles4D);
+        });
+
+        const projMorph = morphVerts.map(v => project4Dto2D(v));
+
+        if (cycle > 0.12) {
+          const alpha = Math.min(0.88, (cycle - 0.12) * 1.2);
+          TESSERACT_EDGES.forEach(([i, j]) => {
+            ctx.strokeStyle = cycle < 0.55
+              ? `rgba(245, 158, 11, ${alpha.toFixed(2)})`
+              : `rgba(56, 189, 248, ${alpha.toFixed(2)})`;
+            ctx.lineWidth = cycle < 0.55 ? 1.7 : 1.45;
+            ctx.beginPath();
+            ctx.moveTo(projMorph[i].sx, projMorph[i].sy);
+            ctx.lineTo(projMorph[j].sx, projMorph[j].sy);
+            ctx.stroke();
+          });
+        }
+
+        if (cycle > 0.5) {
+          renderSliceOverlay(computeHyperplaneSlice(morphVerts, TESSERACT_EDGES, state.sliceW));
+        }
+
+        projMorph.forEach(p => {
+          const r = Math.max(3.2, (6.2 - cycle * 2.0) * p.scale);
+          ctx.fillStyle = cycle < 0.5 ? "#f59e0b" : "#38bdf8";
+          ctx.beginPath();
+          ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        const bw = 158;
+        const bh = 56;
+        const bx = 13;
+        const by = canvasH - bh - 54;
+        if (by > 88) {
+          ctx.fillStyle = "rgba(7, 13, 26, 0.84)";
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.35)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(bx, by, bw, bh, 8);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = "#94a3b8";
+          ctx.font = "600 10px system-ui, sans-serif";
+          ctx.fillText(`Flujo D_S(σ): ${dsVal.toFixed(2)}`, bx + 9, by + 15);
+
+          ctx.strokeStyle = "#f59e0b";
+          ctx.lineWidth = 1.8;
+          ctx.beginPath();
+          for (let x = 0; x <= bw - 20; x += 3) {
+            const t = x / (bw - 20);
+            const yVal = t < 0.35 ? (t / 0.35) * 2 : t < 0.65 ? 2 : 2 + ((t - 0.65) / 0.35) * 2;
+            const py = by + bh - 8 - (yVal / 4) * 28;
+            if (x === 0) ctx.moveTo(bx + 10 + x, py);
+            else ctx.lineTo(bx + 10 + x, py);
+          }
+          ctx.stroke();
+
+          const dx = bx + 10 + cycle * (bw - 20);
+          const dy = by + bh - 8 - (dsVal / 4) * 28;
+          ctx.fillStyle = "#38bdf8";
+          ctx.beginPath();
+          ctx.arc(dx, dy, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      /* ========================================================================
+         9. BUCLE DE RENDERIZADO A 60 FPS E INICIALIZACIÓN DOMCONTENTLOADED
+         ======================================================================== */
+      let prevFramePerf = performance.now();
+
+      function renderLoop(nowPerf) {
+        const dt = Math.min(0.05, (nowPerf - prevFramePerf) / 1000);
+        prevFramePerf = nowPerf;
+        const timeSec = nowPerf / 1000;
+
+        const spd = state.rotSpeed;
+        state.angles4D.xw += dt * 0.54 * spd;
+        state.angles4D.zw += dt * 0.37 * spd;
+        state.angles4D.yw += dt * 0.21 * spd;
+        state.angles4D.xy += dt * 0.14 * spd;
+
+        ctx.clearRect(0, 0, canvasW, canvasH);
+        renderAmbientField(timeSec);
+
+        if (state.activeMode === 0) {
+          renderMode1_HypervolumeGyroid(timeSec);
+          document.getElementById("hudDs").textContent = "D_S = 4.00";
+        } else if (state.activeMode === 1) {
+          renderMode2_HopfAbraxas(timeSec);
+          document.getElementById("hudDs").textContent = "D_S = 2.00";
+        } else if (state.activeMode === 2) {
+          renderMode3_CotangentTorus(timeSec);
+          document.getElementById("hudDs").textContent = "D_S = 4.00";
+        } else {
+          renderMode4_SpectralMorphogenesis(timeSec);
+          document.getElementById("hudDs").textContent = `D_S = ${state.spectralDimLive.toFixed(2)}`;
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      window.addEventListener("beforeunload", () => {
+        state.speechSessionToken += 1;
+        clearAudioTimers();
+        releaseScreenWakeLock();
+        if (hasSpeechSupport) {
+          try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
+      });
+
+      // Usar DOMContentLoaded en lugar de window.load para arranque inmediato
+      document.addEventListener("DOMContentLoaded", () => {
+        buildUI();
+        resizeCanvas();
+        setHyperMode(0, false);
+        updateClockAndProgress();
+        requestAnimationFrame(renderLoop);
+      });
+    })();
+  </script>
+</body>
+</html>
